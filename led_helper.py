@@ -34,6 +34,25 @@ class LedHelper(object):
         self.pixel = neopixel.NeoPixel(pin=self.neopixel_pin, n=neopixels)
         self.active_color_number = 1     # 0 represents all off
 
+        # 30/255 as default intensity to aviod getting blinded by the lights
+        self._neopixel_colors = {
+            'red': [30, 0, 0],
+            'green': [0, 30, 0],
+            'blue': [0, 0, 30],
+            # onwards colors may need adjustment as they are just technically
+            # correct, but maybe not colorwise
+            'yellow': [30, 30, 0],
+            'cyan': [0, 30, 30],
+            'magenta': [30, 0, 30],
+            'white': [30, 30, 30],
+            'maroon': [30 // 2, 0, 0],
+            'darkgreen': [0, 30 // 2, 0],
+            'darkblue': [0, 0, 30 // 2],
+            'olive': [30 // 2, 30 // 2, 0],
+            'teal': [0, 30 // 2, 30 // 2],
+            'purple': [30 // 2, 0, 30 // 2],
+        }
+
     def flash_led(self, amount: int, delay_ms: int = 50) -> None:
         """
         Flash onboard led for given amount of iterations.
@@ -169,25 +188,28 @@ class LedHelper(object):
         :param      intensity:  The intensity
         :type       intensity:  int, optional
         """
-        color_code = {
-            'red': [intensity, 0, 0],
-            'green': [0, intensity, 0],
-            'blue': [0, 0, intensity],
-            # onwards colors may need adjustment as they are just technically
-            # correct, but maybe not colorwise
-            'yellow': [intensity, intensity, 0],
-            'cyan': [0, intensity, intensity],
-            'magenta': [intensity, 0, intensity],
-            'white': [intensity, intensity, intensity],
-            'maroon': [intensity // 2, 0, 0],
-            'darkgreen': [0, intensity // 2, 0],
-            'darkblue': [0, 0, intensity // 2],
-            'olive': [intensity // 2, intensity // 2, 0],
-            'teal': [0, intensity // 2, intensity // 2],
-            'purple': [intensity // 2, 0, intensity // 2],
-        }
-        if color in color_code:
-            self.set_neopixel(rgb=color_code[color])
+        if color in self._neopixel_colors.keys():
+            self.set_neopixel(rgb=self._neopixel_colors[color])
+
+    @property
+    def neopixel_colors(self) -> dict:
+        """
+        Get available colors of Neopixel.
+
+        :returns:   Neopixel colors and their RGB value
+        :rtype:     dict
+        """
+        return self._neopixel_colors
+
+    @neopixel_colors.setter
+    def neopixel_colors(self, value: dict) -> None:
+        """
+        Add new colors or change RGB value of existing color
+
+        :param      value:  Color name as key and RGB intensity list as value
+        :type       value:  dict
+        """
+        self._neopixel_colors.update(value)
 
     def neopixel_fade(self,
                       finally_clear: bool = True,
