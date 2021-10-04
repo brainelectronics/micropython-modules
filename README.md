@@ -68,3 +68,16 @@ lh.neopixel_colors
 lh.neopixel_colors = {'myColor': [26, 3, 18]}
 lh.neopixel_color(color='myColor')
 ```
+
+### Path Helper
+
+MicroPython does not have an `os.path.exists()` function. This small module
+adds this function.
+
+```python
+from helpers.path_helper import PathHelper
+
+path = 'registers/modbusRegisters.json'
+isExist = PathHelper.exists(path=path)
+print('File at path "{}" does exist: {}'.format(path, isExist))
+```

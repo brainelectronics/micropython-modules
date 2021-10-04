@@ -2,72 +2,63 @@
 # -*- coding: UTF-8 -*-
 
 """
-provide unavailable path functions in micropython
+Provide unavailable path functions in MicroPython
 """
 
 import os
-# import sys
 
 
-# There's currently no os.path.exists() support in MicroPython
-def exists(path: str) -> bool:
-    """
-    Check existance of file at given path.
+class PathHelper(object):
+    """docstring for WifiHelper"""
+    def __init__(self):
+        pass
 
-    :param      path:   The path to the file
-    :type       path:   str
+    # There's currently no os.path.exists() support in MicroPython
+    @staticmethod
+    def exists(path: str) -> bool:
+        """
+        Check existance of file at given path.
 
-    :returns:   Existance of file
-    :rtype:     bool
-    """
-    result = False
+        :param      path:   The path to the file
+        :type       path:   str
 
-    path_to_file_list = path.split('/')
-    # ['path', 'to', 'some', 'file.txt']
+        :returns:   Existance of file
+        :rtype:     bool
+        """
+        result = False
 
-    root_path = ''
-    # if sys.platform == 'esp32':
-    # if sys.platform not in ['aix', 'linux', 'win32', 'cygwin', 'darwin']:
-    #     root_path = ''
-    # else:
-    #     root_path = os.path.dirname(os.path.abspath(__file__))
-    # print('The root path: {}'.format(root_path))
+        path_to_file_list = path.split('/')
+        # ['path', 'to', 'some', 'file.txt']
 
-    this_path = root_path
-    for ele in path_to_file_list[:-1]:
-        files_in_dir = os.listdir(this_path)
-        # print('Files in {}: {}'.format(this_path, files_in_dir))
+        root_path = ''
+        # if sys.platform == 'esp32':
+        # if sys.platform not in ['aix', 'linux', 'win32', 'cygwin', 'darwin']:
+        #     root_path = ''
+        # else:
+        #     root_path = os.path.dirname(os.path.abspath(__file__))
+        # print('The root path: {}'.format(root_path))
 
-        if ele in files_in_dir:
-            # print('"{}" found in "{}"'.format(ele, files_in_dir))
+        this_path = root_path
+        for ele in path_to_file_list[:-1]:
+            files_in_dir = os.listdir(this_path)
+            # print('Files in {}: {}'.format(this_path, files_in_dir))
 
-            if this_path == '':
-                this_path += '{}'.format(ele)
+            if ele in files_in_dir:
+                # print('"{}" found in "{}"'.format(ele, files_in_dir))
+
+                if this_path == '':
+                    this_path += '{}'.format(ele)
+                else:
+                    this_path += '/{}'.format(ele)
+
+                # print('Next folder to be checked is: {}'.format(this_path))
             else:
-                this_path += '/{}'.format(ele)
+                return result
 
-            # print('Next folder to be checked is: {}'.format(this_path))
+        files_in_dir = os.listdir(this_path)
+        if path_to_file_list[-1] in files_in_dir:
+            # print('File "{}" found in "{}"'.
+            #       format(path_to_file_list[-1], this_path))
+            return True
         else:
-            return result
-
-    files_in_dir = os.listdir(this_path)
-    if path_to_file_list[-1] in files_in_dir:
-        # print('File "{}" found in "{}"'.
-        #       format(path_to_file_list[-1], this_path))
-        return True
-    else:
-        return False
-
-
-"""
-def main():
-    path = 'registers/modbusRegisters.json'
-    result = exists(path=path)
-    print('Result of check: {}'.format(result))
-    if result:
-        print('File "{}" exists'.format(path))
-
-
-if __name__ == '__main__':
-    main()
-"""
+            return False
