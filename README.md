@@ -81,3 +81,23 @@ path = 'registers/modbusRegisters.json'
 isExist = PathHelper.exists(path=path)
 print('File at path "{}" does exist: {}'.format(path, isExist))
 ```
+
+### Time Helper
+
+```python
+from helpers.time_helper import TimeHelper
+
+# set the timezone offset to +2, default is +1
+th = TimeHelper(tz=2)
+
+# sync the RTC with the NTP server (valid network connection required)
+th.sync_time()
+
+# get current timestamp in ISO8601 format
+th.current_timestamp_iso8601
+# >>> '21:23:55 2021-10-04'
+
+# get current hour from RTC
+th.hour
+# >>> 21
+```
