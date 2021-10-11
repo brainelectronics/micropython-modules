@@ -101,3 +101,29 @@ th.current_timestamp_iso8601
 th.hour
 # >>> 21
 ```
+
+### WiFi Helper
+
+```python
+from helpers.wifi_helper import WifiHelper
+
+# connect to the network 'MyNetwork' and it's password 'realPassword1'
+result = WifiHelper.connect(ssid='MyNetwork', password='realPassword1', timedout=3)
+print('Connection result is: {}'.format(result))
+
+# create an accesspoint named 'MyAP' with a password 'wpa_wpa2_valid_pw'
+result = WifiHelper.create_ap(ssid='MyAP', password='wpa_wpa2_valid_pw', channel=10)
+print('AP creation result is: {}'.format(result))
+
+wh = WifiHelper()
+found_networks = wh.get_wifi_networks_sorted(scan_if_empty=True)
+print('Found these networks: {}'.format(found_networks))
+
+# after a scan the networks are available as list of NamedTuple
+strongest_network = wh.networks[0].ssid
+print('SSID of strongest network: {}'.format(strongest_network))
+
+# convert dBm (RRSI) to quality index in percent
+quality = WifiHelper.dbm_to_quality(dBm=wh.networks[0].RSSI)
+print('Quality of strongest network {}: {}%'.format(strongest_network, quality))
+```
