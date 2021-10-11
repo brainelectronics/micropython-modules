@@ -16,8 +16,6 @@ from .time_helper import TimeHelper
 
 # not natively supported on micropython, see lib/typing.py
 from typing import (List, NamedTuple, Union)
-# from typing import List
-# from typing import NamedTuple
 
 
 class WifiHelper(object):
@@ -74,7 +72,7 @@ class WifiHelper(object):
             print('Failed to connect due to: {}'.format(e))
             return is_successfull
 
-        # get current system timestamp
+        # get current system timestamp in seconds since 01/01/2000
         now = time.time()
 
         # wait for connection no longer than the specified timeout

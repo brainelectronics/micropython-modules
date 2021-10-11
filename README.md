@@ -23,8 +23,19 @@ mkdir /pyboard/helpers
 cp helpers/* /pyboard/helpers
 ```
 
+Install required dependencies (requires network connection, see WifiHelper)
+
 ```python
-from helpers.led_helper import LedHelper
+import upip
+upip.install('micropython-ulogging')
+```
+
+### Generic Helper
+
+Generic helper class with different usecases and functions.
+
+```python
+from helpers.generic_helper import GenericHelper
 ```
 
 ### LED Helper
