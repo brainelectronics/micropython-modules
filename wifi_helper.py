@@ -54,7 +54,7 @@ class WifiHelper(object):
         is_successfull = False
 
         print('Connect to network "{}" with password "{}"'.
-              format(ssid, password))
+              format(ssid, '*' * 8))
 
         # WiFi connection remains after a soft reset
         if machine.reset_cause() == machine.SOFT_RESET:
@@ -128,7 +128,8 @@ class WifiHelper(object):
             else:
                 is_connected = True
 
-                TimeHelper.sync_time()
+                th = TimeHelper()
+                th.sync_time()
                 print(station.ifconfig())
 
                 return is_connected
@@ -179,7 +180,8 @@ class WifiHelper(object):
 
         if is_connected:
             print('Connection successful')
-            TimeHelper.sync_time()
+            th = TimeHelper()
+            th.sync_time()
         else:
             print('Connection timeout of failed to connect')
             print('Please check configured SSID and password')
@@ -424,14 +426,14 @@ class WifiHelper(object):
         return min(max((quality / 2) - 100, -100), -50)
 
     @property
-    def ifconfig(self):
+    def ifconfig_client(self):
         """
-        Get current network interface parameters
+        Get current network interface parameters of the client
 
         :returns:   WiFi or general network informations
         :rtype:     NamedTuple
         """
-        empty_config = ('0.0.0.0', '0.0.0.0', '0.0.0.0', '192.168.178.1')
+        empty_config = ('0.0.0.0', '0.0.0.0', '0.0.0.0', '0.0.0.0')
         _ifconfig = namedtuple('ifconfig', ('ip', 'subnet', 'gateway', 'dns'))
         station = network.WLAN(network.STA_IF)
 
@@ -439,3 +441,16 @@ class WifiHelper(object):
             return _ifconfig(*station.ifconfig())
         else:
             return _ifconfig(*empty_config)
+
+    @property
+    def ifconfig_ap(self):
+        """
+        Get current network interface parameters of the accesspoint
+
+        :returns:   WiFi or general network informations
+        :rtype:     NamedTuple
+        """
+        _ifconfig = namedtuple('ifconfig', ('ip', 'subnet', 'gateway', 'dns'))
+        station = network.WLAN(network.AP_IF)
+
+        return _ifconfig(*station.ifconfig())
