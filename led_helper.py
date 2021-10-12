@@ -7,6 +7,7 @@ handle LED operations on ESP32 Pico D4 board
 
 from machine import Pin
 import neopixel
+import _thread
 import time
 
 # not natively supported on micropython, see lib/typing.py
@@ -34,6 +35,7 @@ class LedHelper(object):
         self.pixel = neopixel.NeoPixel(pin=self.neopixel_pin, n=neopixels)
         self.active_color_number = 1     # 0 represents all off
 
+        # neopixel specific defines
         # 30/255 as default intensity to aviod getting blinded by the lights
         self._neopixel_colors = {
             'red': [30, 0, 0],
@@ -53,6 +55,10 @@ class LedHelper(object):
             'purple': [30 // 2, 0, 30 // 2],
         }
 
+        # blink specific defines
+        self._blink_lock = _thread.allocate_lock()
+        self._blink_delay = 50
+
     def flash_led(self, amount: int, delay_ms: int = 50) -> None:
         """
         Flash onboard led for given amount of iterations.
@@ -64,13 +70,90 @@ class LedHelper(object):
         """
         self.toggle_pin(pin=self.led_pin, amount=amount, delay_ms=delay_ms)
 
+    def blink_led(self, delay_ms: int = 50) -> None:
+        """
+        Blink onboard LED. Wrapper around property usage.
+
+        :param      delay_ms:  The delay between pin changes in milliseconds
+        :type       delay_ms:  int
+        """
+        self.blink_delay = delay_ms
+        self.blinking = True
+
+    def _blink(self, pin: Pin, delay_ms: int, lock: lock) -> None:
+        """
+        Internal blink thread content.
+
+        :param      pin:       The pin to toggle
+        :type       pin:       Pin
+        :param      delay_ms:  The delay between pin changes in milliseconds
+        :type       delay_ms:  int
+        :param      lock:      The lock object
+        :type       lock:      lock
+        """
+        while lock.locked():
+            self.onboard_led = not self.onboard_led
+            time.sleep_ms(delay_ms)
+
+        # turn LED finally off
+        self.onboard_led_off()
+
+    @property
+    def blink_delay(self) -> int:
+        """
+        Get the blink delay in milliseconds.
+
+        :returns:   Delay between pin changes in milliseconds
+        :rtype:     int
+        """
+        return self._blink_delay
+
+    @blink_delay.setter
+    def blink_delay(self, value: int) -> None:
+        """
+        Get the blink delay in milliseconds.
+
+        :param      value:  The delay between pin changes in milliseconds
+        :type       value:  int
+        """
+        if value < 1:
+            value = 1
+        self._blink_delay = value
+
+    @property
+    def blinking(self) -> bool:
+        """
+        Get the blinking status.
+
+        :returns:   Flag whether LED is blinking or not
+        :rtype:     bool
+        """
+        return self._blink_lock.locked()
+
+    @blinking.setter
+    def blinking(self, value: int) -> None:
+        """
+        Start or stop blinking of the onboard LED.
+
+        :param      value:  The value
+        :type       value:  int
+        """
+        if value and (not self._blink_lock.locked()):
+            # start blinking if not already blinking
+            self._blink_lock.acquire()
+            params = (self.led_pin, self._blink_delay, self._blink_lock)
+            _thread.start_new_thread(self._blink, params)
+        elif (value is False) and self._blink_lock.locked():
+            # stop blinking if not already stopped
+            self._blink_lock.release()
+
     @staticmethod
     def toggle_pin(pin: Pin, amount: int, delay_ms: int = 50) -> None:
         """
         Toggle pin for given amount of iterations.
 
         :param      pin:        The pin to toggle
-        :type       pin:        int
+        :type       pin:        Pin
         :param      amount:     The amount of iterations
         :type       amount:     int
         :param      delay_ms:   The delay between a pin change in milliseconds
