@@ -42,6 +42,19 @@ class GenericHelper(object):
         return logger
 
     @staticmethod
+    def set_level(logger: logging.Logger, level: str) -> None:
+        if level.lower() == 'debug':
+            logger.setLevel(level=logging.DEBUG)
+        elif level.lower() == 'info':
+            logger.setLevel(level=logging.DEBUG)
+        elif level.lower() == 'warning':
+            logger.setLevel(level=logging.WARNING)
+        elif level.lower() == 'error':
+            logger.setLevel(level=logging.ERROR)
+        elif level.lower() == 'critical':
+            logger.setLevel(level=logging.CRITICAL)
+
+    @staticmethod
     def get_random_value(lower: int = 0, upper: int = 255) -> int:
         """
         Get a random value between 0 and 255 (inclusive)
