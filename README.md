@@ -48,54 +48,67 @@ This example demonstrates how to interact with the onboard LED
 
 ##### Basics
 
-```python
-from helpers.led_helper import LedHelper
+The onboard LED is availabe on Pin 4 on ESP32 Pico D4 board in inverted mode.
 
-# Onboard LED is availabe on Pin 4 on ESP32
-lh = LedHelper()
-print('Onboard LED is ON: {}'.format(lh.onboard_led))
+```python
+from helpers.led_helper import Led
+
+# Onboard LED is availabe on Pin 4 on ESP32 in inverted mode
+led = Led()
+print('Onboard LED is ON: {}'.format(led.on))
 # Onboard LED is ON: False
 
 # turn onboard LED on
-lh.onboard_led = True
+led.state = True
 
 # alternative way to turn onboard LED on
-lh.onboard_led_on()
+led.turn_on()
 
 # turn onboard LED off
-lh.onboard_led = False
+led.state = False
 
 # alternative way to turn onboard LED off
-lh.onboard_led_off()
+led.turn_off()
 
-# flash LED for 5 times, with 100ms delay between on and off
-lh.flash_led(amount=5, delay_ms=100)
+# flash LED for 5 times, with 100ms delay between on and off states
+# this is blocking other actions until flashing operation finished
+led.flash(amount=5, delay_ms=100)
 ```
 
 ##### Advanced
 
+Other (LED) pins can be used by specifiying them at the beginning
+
 ```python
-from helpers.led_helper import LedHelper
+from helpers.led_helper import Led
+
+# LED at pin 12 will be active if pin is HIGH
+led = Led(led_pin=12, inverted=False)
+print('LED is ON: {}'.format(led.on))
+```
+
+```python
+from helpers.led_helper import Led
 
 # Onboard LED is availabe on Pin 4 on ESP32
-lh = LedHelper()
-print('Onboard LED is ON: {}'.format(lh.onboard_led))
+led = Led()
+print('LED is ON: {}'.format(led.on))
 
 # let LED blink in a seperate thread with 100ms between on and off
-lh.blink_led(delay_ms=100)
-print('Onboard LED is blinking: {}'.format(lh.blinking))
-# Onboard LED is blinking: True
+led.blink(delay_ms=100)
+print('LED is blinking: {}'.format(led.blinking))
+# LED is blinking: True
 
 # stop the LED blinking
-lh.blinking = False
+led.blinking = False
 
 # set different blinking delay
-print('Current blinking delay: {}ms'.format(lh.blink_delay))
+print('Current blinking delay: {}ms'.format(led.blink_delay))
 # Current blinking delay: 100ms
-lh.blink_delay = 50
+led.blink_delay = 50
 
 # start blinking again (with 50ms delay)
-lh.blinking = True
+led.blinking = True
 ```
 
 #### Neopixel
@@ -104,72 +117,87 @@ This example demonstrates how to interact with the Neopixel LED.
 
 ##### Basics
 
+The one Neopixel LED is availabe on Pin 27 on ESP32 Pico D4 board.
+
 ```python
-from helpers.led_helper import LedHelper
+from helpers.led_helper import Neopixel
 
 # Neopixel is by default attached to Pin 27 on ESP32
-lh = LedHelper()
-print('Neopixel is ON: {}'.format(lh.neopixel_active))
+pixel = Neopixel()
+print('Neopixel is active: {}'.format(pixel.active))
 
 # turn Neopixel red with 50/255 intensity
-lh.neopixel_red(50)
-# lh.neopixel_green(50)
-# lh.neopixel_blue(50)
+pixel.red(50)
+# pixel.green(50)
+# pixel.blue(50)
 
-lh.neopixel_active = False
+pixel.active = False
 # turn Neopixel off
 
 # get the current Neopixel color
-print('Neopixel color (RGB): {}'.format(lh.neopixel_color))
+print('Neopixel color (RGB): {}'.format(pixel.color))
 # Neopixel color (RGB): [50, 0, 0]
 
 # get all available neopixel colors
-lh.neopixel_colors
+pixel.colors
 # >>> {'red': [30, 0, 0], 'green': [0, 30, 0], ...}
 
 # turn Neopixel yellow
-lh.neopixel_color = 'yellow'
+pixel.color = 'yellow'
 
 # get current intensity of Neopixel
-print('Neopixel intensity: {}/255'.format(lh.neopixel_intensity))
+print('Neopixel intensity: {}/255'.format(pixel.intensity))
 # Neopixel intensity: 30/255
 
-# reduce Neopixel intensity
-lh.neopixel_intensity = 10
+# reduce Neopixel intensity to 10/255
+pixel.intensity = 10
 
 # turn Neopixel off, but remember last active color
-lh.neopixel_clear()
+pixel.clear()
 ```
 
 ##### Advanced
 
+Other Neopixel pin can be used by specifiying them at the beginning
+
 ```python
-from helpers.led_helper import LedHelper
+from helpers.led_helper import Neopixel
+
+# Neopixel at pin 37 will be active if pin is HIGH
+pixel = Neopixel(neopixel_pin=37, neopixels=3)
+print('Neopixel is active: {}'.format(pixel.active))
+```
+
+```python
+from helpers.led_helper import Neopixel
 
 # Neopixel is by default attached to Pin 27 on ESP32
-lh = LedHelper()
+pixel = Neopixel()
+
+# set custom RGB color
+pixel.set(rgb=[10, 20, 30])
 
 # let Neopixel fade the currently set color in a seperate thread with 100ms
 # between intensity changes, 50ms is default and quite smooth
-lh.neopixel_fade(delay_ms=100)
+pixel.fade(delay_ms=100)
 
 # stop the Neopixel fading
-lh.fading = False
+pixel.fading = False
 
 # set different fading delay
-print('Current fading delay: {}ms'.format(lh.fade_delay))
+print('Current fading delay: {}ms'.format(pixel.fade_delay))
 # Current fading delay: 100ms
-lh.fade_delay = 50
+pixel.fade_delay = 50
 
 # start fading again (with 50ms delay)
-lh.fading = True
+pixel.fading = True
 
 # stop the Neopixel fading
-lh.fading = False
+pixel.fading = False
 
 # define a custom color and set the Neopixel to it
-lh.neopixel_colors = {'DarlingColor': [26, 3, 18]}
-lh.neopixel_color = 'DarlingColor'
+pixel.colors = {'DarlingColor': [26, 3, 18]}
+pixel.color = 'DarlingColor'
 ```
 
 ### Path Helper
