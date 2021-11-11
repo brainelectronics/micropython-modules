@@ -62,8 +62,11 @@ class Led(object):
         :type       lock:      lock
         """
         while lock.locked():
-            self.state = not self.state
-            time.sleep_ms(delay_ms)
+            try:
+                self.state = not self.state
+                time.sleep_ms(delay_ms)
+            except KeyboardInterrupt:
+                break
 
         # turn LED finally off
         self.turn_off()
@@ -521,15 +524,18 @@ class Neopixel(object):
         closest_match_index = self._pwmtable.index(closest_match)
 
         while lock.locked():
-            for val in self._pwmtable[:closest_match_index]:
-                pixel_color = [val if ele != 0 else 0 for ele in self.color]
-                self.set(rgb=pixel_color, number=pixel_amount)
-                time.sleep_ms(delay_ms)
+            try:
+                for val in self._pwmtable[:closest_match_index]:
+                    color = [val if ele != 0 else 0 for ele in self.color]
+                    self.set(rgb=color, number=pixel_amount)
+                    time.sleep_ms(delay_ms)
 
-            for val in self._pwmtable[:closest_match_index][::-1]:
-                pixel_color = [val if ele != 0 else 0 for ele in self.color]
-                self.set(rgb=pixel_color, number=pixel_amount)
-                time.sleep_ms(delay_ms)
+                for val in self._pwmtable[:closest_match_index][::-1]:
+                    color = [val if ele != 0 else 0 for ele in self.color]
+                    self.set(rgb=color, number=pixel_amount)
+                    time.sleep_ms(delay_ms)
+            except KeyboardInterrupt:
+                break
 
         # turn LED finally off
         self.active = False
