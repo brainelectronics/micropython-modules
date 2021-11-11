@@ -30,6 +30,7 @@ class WifiHelper(object):
             4: "WPA/WPA2-PSK"
         }
         self._network_list = list()
+        self._station = network.WLAN(network.STA_IF)
 
     @staticmethod
     def _do_connect(station: network.WLAN,
@@ -192,7 +193,7 @@ class WifiHelper(object):
         return is_connected
 
     @property
-    def isconnected(self):
+    def isconnected(self) -> bool:
         """
         Return whether device is connected as client to a network
 
@@ -200,8 +201,18 @@ class WifiHelper(object):
         :rtype:     bool
         """
         # configure the WiFi as station mode (client)
-        station = network.WLAN(network.STA_IF)
+        station = self.station
         return station.isconnected()
+
+    @property
+    def station(self):
+        """
+        Return WiFi network station aka client interface object
+
+        :returns:   WiFi network station aka client interface object
+        :rtype:     WLAN
+        """
+        return self._station
 
     @staticmethod
     def create_ap(ssid: str,
@@ -304,8 +315,7 @@ class WifiHelper(object):
         :returns:   The WiFi networks
         :rtype:     List[dict]
         """
-        # configure the WiFi as station mode (client)
-        station = network.WLAN(network.STA_IF)
+        station = self.station
 
         # activate WiFi if not yet enabled
         if not station.active():
@@ -314,10 +324,14 @@ class WifiHelper(object):
         # scan for available networks
         try:
             found_networks = station.scan()
+            print('Scan done without error: {}'.format(found_networks))
         except RuntimeError:
+            print('RuntimeError during scan')
             # no access points were found.
             # RuntimeError: Wifi Unknown Error 0x0102
             found_networks = list()
+        except Exception as e:
+            print('Unknown exception: {}'.format(e))
 
         # create dict based on scan_info and found networks
         self._network_list = [dict(zip(self.scan_info, x)) for x in found_networks]
@@ -325,7 +339,12 @@ class WifiHelper(object):
         for net in self._network_list:
             net['quality'] = self.dbm_to_quality(dBm=net['RSSI'])
             if 'authmode' in net:
-                net['authmode'] = self.auth_modes[net['authmode']]
+                try:
+                    net['authmode'] = self.auth_modes[net['authmode']]
+                except KeyError:
+                    print('{} is unknown authmode'.format(net['authmode']))
+                except Exception:
+                    pass
             if 'bssid' in net:
                 net['bssid'] = ubinascii.hexlify(net['bssid'])
 
@@ -435,7 +454,7 @@ class WifiHelper(object):
         """
         empty_config = ('0.0.0.0', '0.0.0.0', '0.0.0.0', '0.0.0.0')
         _ifconfig = namedtuple('ifconfig', ('ip', 'subnet', 'gateway', 'dns'))
-        station = network.WLAN(network.STA_IF)
+        station = self.station
 
         if station.active() and station.isconnected():
             return _ifconfig(*station.ifconfig())
@@ -451,6 +470,6 @@ class WifiHelper(object):
         :rtype:     NamedTuple
         """
         _ifconfig = namedtuple('ifconfig', ('ip', 'subnet', 'gateway', 'dns'))
-        station = network.WLAN(network.AP_IF)
+        ap = network.WLAN(network.AP_IF)
 
-        return _ifconfig(*station.ifconfig())
+        return _ifconfig(*ap.ifconfig())
