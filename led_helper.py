@@ -417,8 +417,7 @@ class Neopixel(object):
 
         # update neopixel if new intensity is different from current one and
         # the Neopixel is currently active
-        if ((self.intensity != self._last_intensity) and
-            self.active):
+        if ((self.intensity != self._last_intensity) and self.active):
             # apply new intensity only if a valid color is set
             if self.color != [0, 0, 0]:
                 do_update = True
