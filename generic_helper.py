@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-"""
-General Helper functions for Micropython Board ESP32-01 D4
-"""
+"""General Helper functions for Micropython boards like BE32-01 and others"""
 
 import gc
 import json
@@ -11,15 +9,14 @@ import ulogging as logging
 import os
 import random
 
-# not natively supported on micropython, see lib/typing.py
-from typing import (Optional, Union)
+# not natively supported on micropython, see typing.py
+from typing import Optional, Union
 
 
 class GenericHelper(object):
     """docstring for GenericHelper"""
     def __init__(self):
         pass
-        # self._val = -99
 
     @staticmethod
     def create_logger(logger_name: Optional[str] = None):
@@ -43,6 +40,14 @@ class GenericHelper(object):
 
     @staticmethod
     def set_level(logger: logging.Logger, level: str) -> None:
+        """
+        Set the level of a logger.
+
+        :param      logger:  The logger to set the level
+        :type       logger:  logging.Logger
+        :param      level:   The new level
+        :type       level:   str
+        """
         if level.lower() == 'debug':
             logger.setLevel(level=logging.DEBUG)
         elif level.lower() == 'info':
@@ -53,11 +58,21 @@ class GenericHelper(object):
             logger.setLevel(level=logging.ERROR)
         elif level.lower() == 'critical':
             logger.setLevel(level=logging.CRITICAL)
+        else:
+            pass
 
     @staticmethod
     def get_random_value(lower: int = 0, upper: int = 255) -> int:
         """
-        Get a random value between 0 and 255 (inclusive)
+        Get a random value within the given range
+
+        :param      lower:  The lower boundary
+        :type       lower:  int, optional
+        :param      upper:  The upper boundary, inclusive, default 255
+        :type       upper:  int, optional
+
+        :returns:   The random value.
+        :rtype:     int
         """
         return random.randint(lower, upper)
 
@@ -111,12 +126,10 @@ class GenericHelper(object):
     @staticmethod
     def free(full: bool = False) -> Union[int, str]:
         """
-        Get detailed informations about free disk space
+        Get detailed informations about free RAM
 
         :param      full:    Flag to return report with total, free, percentage
         :type       full:    bool, optional
-        :param      update:  Flag to collect latest informations
-        :type       update:  bool, optional
 
         :returns:   Informations, percentage by default
         :rtype:     int or str
@@ -145,7 +158,7 @@ class GenericHelper(object):
         return json.loads(data.replace("'", "\""))
 
     @staticmethod
-    def save_json(data: dict, path: str, mode: str = 'w'):
+    def save_json(data: dict, path: str, mode: str = 'w') -> None:
         """
         Save data as JSON file.
 
@@ -179,7 +192,7 @@ class GenericHelper(object):
         return read_data
 
     @staticmethod
-    def save_file(data: str, path: str, mode: str = 'wb'):
+    def save_file(data: str, path: str, mode: str = 'wb') -> None:
         """
         Save data to a file.
 
