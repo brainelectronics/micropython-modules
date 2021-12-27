@@ -36,6 +36,50 @@ Generic helper class with different usecases and functions.
 
 ```python
 from helpers.generic_helper import GenericHelper
+
+# get a random value between zero and 100 (inclusive)
+GenericHelper.get_random_value(0, 100)
+# >>> 72
+
+# get amount of free disk space in kilobytes
+GenericHelper.df(path='/', unit='kb')
+# >>> '1984.000 kB'
+
+# get dict of free RAM with total, free and percentage used
+GenericHelper.get_free_memory()
+# >>> {'percentage': '99.76%', 'total': 4098240, 'free': 4088400}
+
+# get detailed info (full == True) RAM informations
+GenericHelper.free(full=True)
+# >>> 'Total: 4006.1 kB, Free: 3992.56 kB (99.76%)'
+
+# interpret a string as dictionary
+some_string = "{'klaus': 123}"
+d = GenericHelper.str_to_dict(data=some_string)
+type(d)
+# >>> <class 'dict'>
+
+# save a dictionary as JSON file
+GenericHelper.save_json(path='/test.json', data=d)
+
+# load a JSON file as dictionary
+read_back_dict = GenericHelper.load_json(path='/test.json')
+read_back_dict
+# >>> {'klaus': 123}
+
+read_back_dict == d
+# >>> True
+
+# save a string to file in non binary mode
+GenericHelper.save_file(path='/test.txt', data=some_string, mode='w')
+
+# load the content of a file in non binary mode
+read_back_str = GenericHelper.load_file(path='/test.txt', mode='r')
+read_back_str
+# >>> "{'klaus': 123}"
+
+read_back_str == some_string
+# >>> True
 ```
 
 ### LED Helper
