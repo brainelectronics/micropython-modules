@@ -6,7 +6,7 @@ Custom brainelectronics MicroPython helpers, modules and wrappers
 
 ## About
 
-This is a collection of MicroPython modules required for ESP32 and other
+This is a collection of MicroPython modules required for the BE32-01 and other
 brainelectronics projects.
 
 ## Available generators
@@ -84,20 +84,20 @@ read_back_str == some_string
 
 ### LED Helper
 
-Handle the onbaord LED on a ESP32/ESP8266 or Neopixel LEDs.
+Handle the onbaord LED on a BE32-01, ESP32 or ESP8266 as well as Neopixel LEDs.
 
 #### Onboard LED
 
-This example demonstrates how to interact with the onboard LED
+This example demonstrates how to interact with the onboard LED on the BE32-01
 
 ##### Basics
 
-The onboard LED is availabe on Pin 4 on ESP32 Pico D4 board in inverted mode.
+The onboard LED is availabe on Pin 4 on the BE32-01 board in inverted mode.
 
 ```python
 from helpers.led_helper import Led
 
-# Onboard LED is availabe on Pin 4 on ESP32 in inverted mode
+# Onboard LED is availabe on Pin 4 on BE32-01 in inverted mode
 led = Led()
 print('Onboard LED is ON: {}'.format(led.on))
 # Onboard LED is ON: False
@@ -134,7 +134,7 @@ print('LED is ON: {}'.format(led.on))
 ```python
 from helpers.led_helper import Led
 
-# Onboard LED is availabe on Pin 4 on ESP32
+# Onboard LED is availabe on Pin 4 on BE32-01
 led = Led()
 print('LED is ON: {}'.format(led.on))
 
@@ -157,16 +157,16 @@ led.blinking = True
 
 #### Neopixel
 
-This example demonstrates how to interact with the Neopixel LED.
+This example demonstrates how to interact with the Neopixel LED on the BE32-01.
 
 ##### Basics
 
-The one Neopixel LED is availabe on Pin 27 on ESP32 Pico D4 board.
+The one Neopixel LED is availabe on Pin 27 on the BE32-01 board.
 
 ```python
 from helpers.led_helper import Neopixel
 
-# Neopixel is by default attached to Pin 27 on ESP32
+# Neopixel is by default attached to Pin 27 on BE32-01
 pixel = Neopixel()
 print('Neopixel is active: {}'.format(pixel.active))
 
@@ -215,7 +215,7 @@ print('Neopixel is active: {}'.format(pixel.active))
 ```python
 from helpers.led_helper import Neopixel
 
-# Neopixel is by default attached to Pin 27 on ESP32
+# Neopixel is by default attached to Pin 27 on BE32-01
 pixel = Neopixel()
 
 # set custom RGB color
@@ -253,8 +253,8 @@ adds this function.
 from helpers.path_helper import PathHelper
 
 path = 'registers/modbusRegisters.json'
-isExist = PathHelper.exists(path=path)
-print('File at path "{}" does exist: {}'.format(path, isExist))
+result = PathHelper.exists(path=path)
+print('File at path "{}" does exist: {}'.format(path, result))
 ```
 
 ### Time Helper
@@ -282,8 +282,8 @@ th.hour
 ```python
 from helpers.wifi_helper import WifiHelper
 
-# connect to the network 'MyNetwork' and it's password 'realPassword1'
-result = WifiHelper.connect(ssid='MyNetwork', password='realPassword1', timedout=3)
+# connect to the network 'MyNet' and it's password 'realPassword1'
+result = WifiHelper.connect(ssid='MyNet', password='realPassword1', timedout=3)
 print('Connection result is: {}'.format(result))
 
 # create an accesspoint named 'MyAP' with a password 'wpa_wpa2_valid_pw'
@@ -295,10 +295,10 @@ found_networks = wh.get_wifi_networks_sorted(scan_if_empty=True)
 print('Found these networks: {}'.format(found_networks))
 
 # after a scan the networks are available as list of NamedTuple
-strongest_network = wh.networks[0].ssid
-print('SSID of strongest network: {}'.format(strongest_network))
+strongest_net = wh.networks[0].ssid
+print('SSID of strongest network: {}'.format(strongest_net))
 
 # convert dBm (RRSI) to quality index in percent
 quality = WifiHelper.dbm_to_quality(dBm=wh.networks[0].RSSI)
-print('Quality of strongest network {}: {}%'.format(strongest_network, quality))
+print('Quality of strongest network {}: {}%'.format(strongest_net, quality))
 ```
