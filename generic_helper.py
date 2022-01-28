@@ -19,7 +19,7 @@ class GenericHelper(object):
         pass
 
     @staticmethod
-    def create_logger(logger_name: Optional[str] = None):
+    def create_logger(logger_name: Optional[str] = None) -> logging.Logger:
         """
         Create a logger.
 
@@ -81,9 +81,9 @@ class GenericHelper(object):
         """
         Get free disk space
 
-        :param      path:    The path to obtain informations
+        :param      path:    Path to obtain informations
         :type       path:    str, optional
-        :param      unit:    The unit of the returned size, None, 'kB' or 'MB'
+        :param      unit:    Unit of returned size [None, 'byte', 'kB', 'MB']
         :type       unit:    str, optional
 
         :returns:   Available disk space in byte or as string in kB or MB
@@ -91,8 +91,12 @@ class GenericHelper(object):
         """
         info = os.statvfs(path)
 
+        result = -1
+
         if unit is None:
             result = info[0] * info[3]
+        elif unit.lower() == 'byte':
+            result = ('{} byte'.format((info[0] * info[3])))
         elif unit.lower() == 'kb':
             result = ('{0:.3f} kB'.format((info[0] * info[3]) / 1024))
         elif unit.lower() == 'mb':
@@ -115,7 +119,11 @@ class GenericHelper(object):
         free = gc.mem_free()
         allocated = gc.mem_alloc()
         total = free + allocated
-        percentage = '{0:.2f}%'.format((free / total) * 100)
+
+        if total:
+            percentage = '{0:.2f}%'.format((free / total) * 100)
+        else:
+            percentage = '100.00%'
 
         memory_stats = {'free': free,
                         'total': total,
@@ -136,11 +144,11 @@ class GenericHelper(object):
         """
         memory_stats = GenericHelper.get_free_memory()
 
-        if not full:
+        if full is False:
             return memory_stats['percentage']
         else:
             return ('Total: {0:.1f} kB, Free: {1:.2f} kB ({2})'.
-                    format(memory_stats['total'] / 1023,
+                    format(memory_stats['total'] / 1024,
                            memory_stats['free'] / 1024,
                            memory_stats['percentage']))
 
@@ -210,18 +218,36 @@ class GenericHelper(object):
     @staticmethod
     def load_file(path: str, mode: str = 'rb') -> str:
         """
-        Load data from a file.
+        Wrapper for read_file.
 
-        :param      path:  The path to the file
+        :param      path:  The path to the file to read
+        :type       path:  str
+
+        :returns:   The raw file content.
+        :rtype:     str
+        :param      mode:  The mode of file operation
+        :type       mode:  str, optional
+
+        :returns:   Content of file
+        :rtype:     str
+        """
+        return GenericHelper.read_file(path=path, mode=mode)
+
+    @staticmethod
+    def read_file(path: str, mode: str = 'rb') -> str:
+        """
+        Read file content.
+
+        :param      path:  The path to the file to read
         :type       path:  str
         :param      mode:  The mode of file operation
         :type       mode:  str, optional
 
-        :returns:   Read file content
+        :returns:   The raw file content.
         :rtype:     str
         """
-        # read file in binary by default
         read_data = ""
+
         with open(path, mode) as file:
             read_data = file.read()
 
