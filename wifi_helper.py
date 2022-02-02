@@ -322,14 +322,15 @@ class WifiHelper(object):
             station.active(True)
 
         # scan for available networks
+        found_networks = list()
         try:
             found_networks = station.scan()
-            print('Scan done without error: {}'.format(found_networks))
+            if not len(found_networks):
+                station.active(False)
         except RuntimeError:
             print('RuntimeError during scan')
             # no access points were found.
             # RuntimeError: Wifi Unknown Error 0x0102
-            found_networks = list()
         except Exception as e:
             print('Unknown exception: {}'.format(e))
 
@@ -346,7 +347,10 @@ class WifiHelper(object):
                 except Exception:
                     pass
             if 'bssid' in net:
-                net['bssid'] = ubinascii.hexlify(net['bssid'])
+                try:
+                    net['bssid'] = ubinascii.hexlify(net['bssid'])
+                except Exception:
+                    pass
 
     @property
     def networks(self) -> List[NamedTuple]:
