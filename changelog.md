@@ -17,15 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-10-04
 ### Added
 - This changelog file
-- PathHelper module added to provide `os.path.exists()` function
+- `PathHelper` module added to provide `os.path.exists()` function
 
 ### Changed
-- LED helper module converted into class
-- Time helper module converted into class
-- WiFi helper module converted into class
+- `LED` and `Neopixel` helper module converted into classes
+- `TimeHelper` module converted into class
+- `WifiHelper` module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/python-modules/compare/0.1.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/0.1.0...develop
 
 
 [0.1.0]: https://github.com/brainelectronics/micropython-modules/tree/0.1.0
