@@ -2,7 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 """
-handle LED operations on ESP32 Pico D4 board
+LED Helper
+
+Collection of LED functions for Micropython boards like BE32-01 and others
 """
 
 from machine import Pin

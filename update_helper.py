@@ -2,7 +2,10 @@
 # -*- coding: UTF-8 -*-
 
 """
-handle tar.gz update files.
+Update Helper
+
+Handle tar.gz update files
+
 requires utarfile module
 >>> import upip
 >>> upip.install('micropython-utarfile')
@@ -11,7 +14,7 @@ Create tar.gz file with this command
 $ tar -c -b 4 -f tarFileName.tar.gz -v someTarFolder/
 or use create_tar.sh
 
-Usage:
+Micropython usage:
 >>> import UpdateHelper
 >>> name = 'folder.tar.gz'
 >>> UpdateHelper.extract_tar(name=name)
@@ -28,7 +31,7 @@ import upip
 
 
 class UpdateHelper(object):
-    """docstring for WifiHelper"""
+    """docstring for UpdateHelper"""
     def __init__(self):
         pass
 

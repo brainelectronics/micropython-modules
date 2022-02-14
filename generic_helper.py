@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-"""General Helper functions for Micropython boards like BE32-01 and others"""
+"""
+Generic helper
+
+Collection of helper functions for Micropython boards like BE32-01 and others
+"""
 
 import gc
 import json
@@ -31,10 +35,13 @@ class GenericHelper(object):
         """
         logging.basicConfig(level=logging.INFO)
 
-        if logger_name:
+        if logger_name and (isinstance(logger_name, str)):
             logger = logging.getLogger(logger_name)
         else:
             logger = logging.getLogger(__name__)
+
+        # set the logger level to DEBUG if specified differently
+        logger.setLevel(logging.DEBUG)
 
         return logger
 
@@ -136,7 +143,7 @@ class GenericHelper(object):
         """
         Get detailed informations about free RAM
 
-        :param      full:    Flag to return report with total, free, percentage
+        :param      full:    Flag to return str with total, free, percentage
         :type       full:    bool, optional
 
         :returns:   Informations, percentage by default

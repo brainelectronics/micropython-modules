@@ -2,14 +2,16 @@
 # -*- coding: UTF-8 -*-
 
 """
-Provide unavailable path functions in MicroPython
+Path Helper
+
+Provide unavailable path functions for Micropython boards
 """
 
 import os
 
 
 class PathHelper(object):
-    """docstring for WifiHelper"""
+    """docstring for PathHelper"""
     def __init__(self):
         pass
 
