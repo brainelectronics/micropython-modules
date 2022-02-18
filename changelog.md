@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - This changelog file
 - `PathHelper` module added to provide `os.path.exists()` function
+- `ModbusBridge` module
 
 ### Changed
 - `LED` and `Neopixel` helper module converted into classes
