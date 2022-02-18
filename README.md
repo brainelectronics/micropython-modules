@@ -28,6 +28,7 @@ Install required dependencies (requires network connection, see WifiHelper)
 ```python
 import upip
 upip.install('micropython-ulogging')
+# upip.install('micropython-utarfile')
 ```
 
 ### Generic Helper
@@ -242,6 +243,31 @@ pixel.fading = False
 # define a custom color and set the Neopixel to it
 pixel.colors = {'DarlingColor': [26, 3, 18]}
 pixel.color = 'DarlingColor'
+```
+
+### Modbus Bridge
+
+```python
+from helpers.modbus_bridge import ModbusBridge
+
+register_file = 'registers/modbusRegisters-MyEVSE.json'
+
+mb_bridge = ModbusBridge(register_file=register_file)
+
+# set Modbus host settings
+host_settings = {
+    'type': 'tcp',
+    'unit': 502,
+    'address': '192.168.32.12',
+    'baudrate': -1,
+    'mode': 'master'
+}
+mb_bridge.connection_settings_host = host_settings
+
+# setup Modbus connections to host and client
+mb_bridge.setup_connection(pins=(25, 26))   # (TX, RX)
+
+mb_bridge.read_all_registers()
 ```
 
 ### Path Helper
