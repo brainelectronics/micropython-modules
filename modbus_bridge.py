@@ -463,7 +463,7 @@ class ModbusBridge(object):
         modbus_registers = self.register_definitions
 
         # Coils (setter+getter) [0, 1]
-        self.logger.info('Coils:')
+        self.logger.debug('Coils:')
         if 'COILS' in modbus_registers:
             coil_register_content = self.read_coil_registers()
             self.logger.debug('coil_register_content: {}'.
@@ -471,37 +471,37 @@ class ModbusBridge(object):
 
             read_content.update(coil_register_content)
         else:
-            self.logger.info('No COILS defined, skipping')
+            self.logger.debug('No COILS defined, skipping')
 
         # Hregs (setter+getter) [0, 65535]
-        self.logger.info('Hregs:')
+        self.logger.debug('Hregs:')
         if 'HREGS' in modbus_registers:
             hreg_register_content = self.read_hregs_registers()
             self.logger.debug('hreg_register_content: {}'.
                               format(hreg_register_content))
             read_content.update(hreg_register_content)
         else:
-            self.logger.info('No HREGS defined, skipping')
+            self.logger.debug('No HREGS defined, skipping')
 
         # Ists (only getter) [0, 1]
-        self.logger.info('Ists:')
+        self.logger.debug('Ists:')
         if 'ISTS' in modbus_registers:
             input_status_content = self.read_ists_registers()
             self.logger.debug('input_status_content: {}'.
                               format(input_status_content))
             read_content.update(input_status_content)
         else:
-            self.logger.info('No ISTS defined, skipping')
+            self.logger.debug('No ISTS defined, skipping')
 
         # Iregs (only getter) [0, 65535]
-        self.logger.info('Iregs:')
+        self.logger.debug('Iregs:')
         if 'IREGS' in modbus_registers:
             ireg_register_content = self.read_iregs_registers()
             self.logger.debug('ireg_register_content: {}'.
                               format(ireg_register_content))
             read_content.update(ireg_register_content)
         else:
-            self.logger.info('No IREGS defined, skipping')
+            self.logger.debug('No IREGS defined, skipping')
 
         self.logger.debug('Complete read content: {}'.format(read_content))
 
@@ -513,30 +513,30 @@ class ModbusBridge(object):
         :type       modbus_registers:  dict
         """
         # Coils (setter+getter) [0, 1]
-        self.logger.info('Coils:')
+        self.logger.debug('Coils:')
         if 'COILS' in modbus_registers:
             self.write_coil_registers(
                 modbus_registers=modbus_registers['COILS']
             )
         else:
-            self.logger.info('No COILS defined, skipping')
+            self.logger.debug('No COILS defined, skipping')
 
         # Hregs (setter+getter) [0, 65535]
-        self.logger.info('Hregs:')
+        self.logger.debug('Hregs:')
         if 'HREGS' in modbus_registers:
             self.write_hregs_registers(
                 modbus_registers=modbus_registers['HREGS']
             )
         else:
-            self.logger.info('No HREGS defined, skipping')
+            self.logger.debug('No HREGS defined, skipping')
 
         # Ists (only getter) [0, 1]
         if 'ISTS' in modbus_registers:
-            self.logger.info('ISTS can only be read, skipping')
+            self.logger.debug('ISTS can only be read, skipping')
 
         # Iregs (only getter) [0, 65535]
         if 'IREGS' in modbus_registers:
-            self.logger.info('IREGS can only be read, skipping')
+            self.logger.debug('IREGS can only be read, skipping')
 
     def read_coil_registers(self) -> dict:
         """
@@ -576,7 +576,8 @@ class ModbusBridge(object):
                     'val': list(coil_status)
                 }
 
-            self.logger.info('\t{}\t{}'.format(register_address, coil_status))
+            self.logger.debug('\t{}\t{}'.format(register_address,
+                                                coil_status))
 
         return register_content
 
@@ -654,8 +655,8 @@ class ModbusBridge(object):
                     'val': list(register_value)
                 }
 
-            self.logger.info('\t{}\t{}'.format(register_address,
-                                               register_value))
+            self.logger.debug('\t{}\t{}'.format(register_address,
+                                                register_value))
 
         return register_content
 
@@ -728,8 +729,8 @@ class ModbusBridge(object):
                     'val': list(input_status)
                 }
 
-            self.logger.info('\t{}\t{}'.format(register_address,
-                                               input_status))
+            self.logger.debug('\t{}\t{}'.format(register_address,
+                                                input_status))
 
         return register_content
 
@@ -773,7 +774,7 @@ class ModbusBridge(object):
                     'val': list(register_value)
                 }
 
-            self.logger.info('\t{}\t{}'.format(register_address,
-                                               register_value))
+            self.logger.debug('\t{}\t{}'.format(register_address,
+                                                register_value))
 
         return register_content
