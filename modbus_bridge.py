@@ -295,7 +295,7 @@ class ModbusBridge(object):
                         self.client_unit = connection_unit
                         self.logger.debug('Client connection settings: {}'.
                                           format(connection_config))
-                    elif connection_mode == 'host':
+                    elif connection_mode == 'master':
                         self.connection_settings_host = connection_config
                         self.host_unit = connection_unit
                         self.logger.debug('Host connection settings: {}'.
@@ -423,13 +423,14 @@ class ModbusBridge(object):
                 self.logger.debug('Local IP of device: {}'.format(local_ip))
 
                 self.logger.debug('Connection settings: {}'.
-                                  format(_client_cfg))
-                port = int(_client_cfg['unit'])
+                                  format(_host_cfg))
+                port = int(_host_cfg['unit'])
 
                 self.logger.debug('Binding device to IP "{}" on port "{}"'.
                                   format(local_ip, port))
                 _client.bind(local_ip=local_ip, local_port=port)
-                self.logger.debug('Modbus TCP Client binding done')
+                self.logger.debug('Modbus TCP client binding done')
+
             self.logger.debug('Created TCP client to serve on {}:{}'.
                               format(local_ip, port))
 
@@ -442,9 +443,10 @@ class ModbusBridge(object):
         self.logger.debug('Client started as {mode} on address {address}'.
                           format(mode=_client_cfg['type'],
                                  address=_client_cfg['unit']))
-        self.logger.debug('Host started as {mode} on address {address}'.
-                          format(mode=_host_cfg['mode'],
-                                 address=_host_cfg['type']))
+        self.logger.debug('Host started as {mode} on address {address}:{port}'.
+                          format(mode=_host_cfg['type'],
+                                 address=local_ip,
+                                 port=_host_cfg['unit']))
 
     def read_all_registers(self) -> dict:
         """
