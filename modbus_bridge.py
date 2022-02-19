@@ -10,6 +10,8 @@ Create bridge between RTU and TCP modbus requests
 # system packages
 import gc
 import network
+import _thread
+import time
 
 # pip installed packages
 # import picoweb
@@ -54,6 +56,16 @@ class ModbusBridge(object):
         self._client = None
         self._host = None
 
+        # data collection specific defines
+        self._collect_lock = _thread.allocate_lock()
+        self._collect_interval = 10  # seconds
+        # Queue also works, but in this case there is no need for a history
+        self._client_data_msg = Message()
+        self._client_data_msg.set({})  # empty dict
+        self._client_data = {}
+        # flag to start the client data collection thread
+        self.collecting_client_data = False
+
         # set register file and load its definitions
         self.register_file = register_file
         self.register_definitions = self._load_register_file()
@@ -63,6 +75,8 @@ class ModbusBridge(object):
 
         # run garbage collector at the end to clean up
         gc.collect()
+
+        self.logger.debug('ModbusBridge setup finished')
 
     @property
     def register_file(self) -> str:
@@ -254,6 +268,65 @@ class ModbusBridge(object):
         else:
             raise ModbusBridgeError('Host unit shall be int, not {}'.
                                     format(type(val)))
+
+    @property
+    def collection_interval(self) -> int:
+        """
+        Get the client Modbus data collection interval in seconds.
+
+        :returns:   Interval of Modbus client data collection in seconds
+        :rtype:     int
+        """
+        return self._collect_interval
+
+    @property
+    def collecting_client_data(self) -> bool:
+        """
+        Get the client data collection status.
+
+        :returns:   Flag client data collection is running or not.
+        :rtype:     bool
+        """
+        return self._collect_lock.locked()
+
+    @collecting_client_data.setter
+    def collecting_client_data(self, value: bool) -> None:
+        """
+        Start or stop collecting client data
+
+        :param      value:  The value
+        :type       value:  bool
+        """
+        if value and (not self._collect_lock.locked()):
+            # start collecting client data if not already collecting
+            self._collect_lock.acquire()
+
+            # parameters of the _scan function
+            params = (
+                self._client_data_msg,
+                self._collect_interval,
+                self._collect_lock
+            )
+            _thread.start_new_thread(self._collect_client_data, params)
+            self.logger.info('Collecting client data started')
+        elif (value is False) and self._collect_lock.locked():
+            # stop collecting client data if not already stopped
+            self._collect_lock.release()
+            self.logger.info('Collecting client data stoppped')
+
+    @property
+    def client_data(self) -> Dict[dict]:
+        gc.collect()
+        free = gc.mem_free()
+        self.logger.debug('Free memory: {}'.format(free))
+
+        _client_data = self._client_data_msg.value()
+        self.logger.info('Latest client data: {}'.format(_client_data))
+
+        # update data only if not empty
+        if _client_data:
+            self._client_data = _client_data
+        return self._client_data
 
     def _load_register_file(self) -> Dict[dict]:
         """
@@ -465,6 +538,31 @@ class ModbusBridge(object):
                           format(mode=_host_cfg['type'],
                                  address=local_ip,
                                  port=_host_cfg['unit']))
+
+    def _collect_client_data(self, msg: Message, interval: int, lock: int) -> None:
+        """
+        Collect client Modbus data
+
+        :param      msg:        The shared message from this thread
+        :type       msg:        Message
+        :param      interval:   The scan interval in milliseconds
+        :type       interval:   int
+        :param      lock:       The lock object
+        :type       lock:       _thread.lock
+        """
+        while lock.locked():
+            try:
+                # collect latest data from client
+                read_content = self.read_all_registers()
+
+                msg.set(read_content)
+
+                # wait for specified time
+                time.sleep(interval)
+            except KeyboardInterrupt:
+                break
+
+        print('Finished collecting client data')
 
     def read_all_registers(self) -> dict:
         """
