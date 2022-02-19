@@ -2,11 +2,12 @@
 # -*- coding: UTF-8 -*-
 
 """
-Update Helper
+Perform updates of Micropython code via OTA or in any other way via tar.gz file
 
-Handle tar.gz update files
+Download file (TBD), uncompress archive and update content on filesystem
+https://github.com/pycom/pycom-libraries/blob/master/examples/OTA/OTA_server.py
 
-requires utarfile module
+Install utarfile with the following commands
 >>> import upip
 >>> upip.install('micropython-utarfile')
 
@@ -14,8 +15,8 @@ Create tar.gz file with this command
 $ tar -c -b 4 -f tarFileName.tar.gz -v someTarFolder/
 or use create_tar.sh
 
-Micropython usage:
->>> import UpdateHelper
+Usage:
+>>> import update_helper
 >>> name = 'folder.tar.gz'
 >>> UpdateHelper.extract_tar(name=name)
 
@@ -37,7 +38,7 @@ class UpdateHelper(object):
 
     @staticmethod
     def extract_tar(name: str, prefix: str = '/') -> None:
-        # t is an iteration and can only be used once
+        # t is an iterator and can thereby only be used once
         t = utarfile.TarFile(name=name)
 
         for i in t:
@@ -50,10 +51,11 @@ class UpdateHelper(object):
                 # https://github.com/micropython/micropython-lib/blob/3c383f6d2864a4b39bbe4ceb2ae8f29b519c9afe/micropython/upip/upip.py#L68
                 f = t.extractfile(i)
 
-                outfname = '/{}'.format(i.name)
+                outfname = '{}{}'.format(prefix, i.name)
                 print('Saving {} as {}'.format(i.name, outfname))
                 upip.save_file(outfname, f)
 
+    @staticmethod
     def perform_update(update_file: str = 'update.tar.gz') -> bool:
         update_result = False
 
