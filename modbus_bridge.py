@@ -56,15 +56,20 @@ class ModbusBridge(object):
         self._client = None
         self._host = None
 
-        # data collection specific defines
+        # client data collection specific defines
         self._collect_lock = _thread.allocate_lock()
         self._collect_interval = 10  # seconds
         # Queue also works, but in this case there is no need for a history
         self._client_data_msg = Message()
         self._client_data_msg.set({})  # empty dict
         self._client_data = {}
-        # flag to start the client data collection thread
+        # flag to start/stop the client data collection thread
         self.collecting_client_data = False
+
+        # host data provision specific defines
+        self._provision_lock = _thread.allocate_lock()
+        # flag to start/stop the host data provision thread
+        self.provisioning_host_data = False
 
         # set register file and load its definitions
         self.register_file = register_file
@@ -301,7 +306,7 @@ class ModbusBridge(object):
             # start collecting client data if not already collecting
             self._collect_lock.acquire()
 
-            # parameters of the _scan function
+            # parameters of the _collect_client_data function
             params = (
                 self._client_data_msg,
                 self._collect_interval,
@@ -327,6 +332,40 @@ class ModbusBridge(object):
         if _client_data:
             self._client_data = _client_data
         return self._client_data
+
+    @property
+    def provisioning_host_data(self) -> bool:
+        """
+        Get the host data provision status.
+
+        :returns:   Flag host data provision is running or not.
+        :rtype:     bool
+        """
+        return self._provision_lock.locked()
+
+    @provisioning_host_data.setter
+    def provisioning_host_data(self, value: bool) -> None:
+        """
+        Start or stop provisioning host data
+
+        :param      value:  The value
+        :type       value:  bool
+        """
+        if value and (not self._provision_lock.locked()):
+            # start provisioning host data if not already provisioning
+            self._provision_lock.acquire()
+
+            # parameters of the _provision_host_data function
+            params = (
+                1,
+                self._provision_lock
+            )
+            _thread.start_new_thread(self._provision_host_data, params)
+            self.logger.info('Provisioning host data started')
+        elif (value is False) and self._provision_lock.locked():
+            # stop provisioning host data if not already stopped
+            self._provision_lock.release()
+            self.logger.info('Provisioning host data stoppped')
 
     def _load_register_file(self) -> Dict[dict]:
         """
@@ -545,7 +584,7 @@ class ModbusBridge(object):
 
         :param      msg:        The shared message from this thread
         :type       msg:        Message
-        :param      interval:   The scan interval in milliseconds
+        :param      interval:   The data collection interval in seconds
         :type       interval:   int
         :param      lock:       The lock object
         :type       lock:       _thread.lock
@@ -563,6 +602,24 @@ class ModbusBridge(object):
                 break
 
         print('Finished collecting client data')
+
+    def _provision_host_data(self, interval: int, lock: int) -> None:
+        """
+        Provision host Modbus data
+
+        :param      interval:   The interval
+        :type       interval:   int
+        :param      lock:       The lock object
+        :type       lock:       _thread.lock
+        """
+        while lock.locked():
+            try:
+                # provision latest data as host
+                self.client.process()
+            except KeyboardInterrupt:
+                break
+
+        print('Finished provisioning host data')
 
     def read_all_registers(self) -> dict:
         """
