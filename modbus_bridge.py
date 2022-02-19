@@ -638,7 +638,7 @@ class ModbusBridge(object):
             self.logger.debug('coil_register_content: {}'.
                               format(coil_register_content))
 
-            read_content.update(coil_register_content)
+            read_content['COILS'] = coil_register_content
         else:
             self.logger.debug('No COILS defined, skipping')
 
@@ -648,7 +648,7 @@ class ModbusBridge(object):
             hreg_register_content = self.read_hregs_registers()
             self.logger.debug('hreg_register_content: {}'.
                               format(hreg_register_content))
-            read_content.update(hreg_register_content)
+            read_content['HREGS'] = hreg_register_content
         else:
             self.logger.debug('No HREGS defined, skipping')
 
@@ -658,7 +658,7 @@ class ModbusBridge(object):
             input_status_content = self.read_ists_registers()
             self.logger.debug('input_status_content: {}'.
                               format(input_status_content))
-            read_content.update(input_status_content)
+            read_content['ISTS'] = input_status_content
         else:
             self.logger.debug('No ISTS defined, skipping')
 
@@ -668,7 +668,7 @@ class ModbusBridge(object):
             ireg_register_content = self.read_iregs_registers()
             self.logger.debug('ireg_register_content: {}'.
                               format(ireg_register_content))
-            read_content.update(ireg_register_content)
+            read_content['IREGS'] = ireg_register_content
         else:
             self.logger.debug('No IREGS defined, skipping')
 
