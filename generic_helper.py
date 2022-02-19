@@ -58,7 +58,7 @@ class GenericHelper(object):
         if level.lower() == 'debug':
             logger.setLevel(level=logging.DEBUG)
         elif level.lower() == 'info':
-            logger.setLevel(level=logging.DEBUG)
+            logger.setLevel(level=logging.INFO)
         elif level.lower() == 'warning':
             logger.setLevel(level=logging.WARNING)
         elif level.lower() == 'error':
