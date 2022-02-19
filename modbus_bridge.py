@@ -71,6 +71,10 @@ class ModbusBridge(object):
         # flag to start/stop the host data provision thread
         self.provisioning_host_data = False
 
+        # data sync specific defined
+        # self._sync_lock = _thread.allocate_lock()
+        self._sync_interval = 10  # seconds
+
         # set register file and load its definitions
         self.register_file = register_file
         self.register_definitions = self._load_register_file()
@@ -285,6 +289,16 @@ class ModbusBridge(object):
         return self._collect_interval
 
     @property
+    def synchronisation_interval(self) -> int:
+        """
+        Get the host-client data synchronisation interval in seconds.
+
+        :returns:   Interval of Modbus data synchronisation of host<->client
+        :rtype:     int
+        """
+        return self._sync_interval
+
+    @property
     def collecting_client_data(self) -> bool:
         """
         Get the client data collection status.
@@ -309,7 +323,7 @@ class ModbusBridge(object):
             # parameters of the _collect_client_data function
             params = (
                 self._client_data_msg,
-                self._collect_interval,
+                self.collection_interval,
                 self._collect_lock
             )
             _thread.start_new_thread(self._collect_client_data, params)
@@ -357,7 +371,7 @@ class ModbusBridge(object):
 
             # parameters of the _provision_host_data function
             params = (
-                1,
+                self.synchronisation_interval,
                 self._provision_lock
             )
             _thread.start_new_thread(self._provision_host_data, params)
@@ -607,19 +621,66 @@ class ModbusBridge(object):
         """
         Provision host Modbus data
 
-        :param      interval:   The interval
+        :param      interval:   The data synchronisation interval in seconds
         :type       interval:   int
         :param      lock:       The lock object
         :type       lock:       _thread.lock
         """
+        last_update = time.time()
+
         while lock.locked():
             try:
-                # provision latest data as host
+                # serve requests as host
                 self.client.process()
+
+                # check time for data synchronisation
+                if time.time() > (last_update + interval):
+                    last_update = time.time()
+                    last_update_ticks = time.ticks_ms()
+                    self._update_host_data()
+                    time_diff = time.ticks_diff(time.ticks_ms(),
+                                                last_update_ticks)
+                    self.logger.info('Data sync took: {}'.format(time_diff))
             except KeyboardInterrupt:
                 break
 
         print('Finished provisioning host data')
+
+    def _update_host_data(self) -> None:
+        """Update host Modbus data with latest data received from client"""
+        _client_data = self.client_data
+        _client = self.client
+
+        # update all registers of host with the latest client data
+        for reg_type in ['COILS', 'HREGS', 'ISTS', 'IREGS']:
+            if reg_type in _client_data:
+                for reg, val in _client_data[reg_type].items():
+                    if 'val' in val:
+                        address = val['register']
+                        value = val['val']
+
+                        if reg_type == 'COILS':
+                            # set register will add it if not yet there
+                            _client.set_coil(address=address, value=value)
+                        elif reg_type == 'HREGS':
+                            # set register will add it if not yet there
+                            _client.set_hreg(address=address, value=value)
+                        elif reg_type == 'ISTS':
+                            # set register will add it if not yet there
+                            _client.set_ist(address=address, value=value)
+                        elif reg_type == 'IREGS':
+                            # set register will add it if not yet there
+                            _client.set_ireg(address=address, value=value)
+                        else:
+                            # invalid register type
+                            pass
+                    else:
+                        # no value for this register in response dict
+                        pass
+            else:
+                self.logger.debug('No {} defined in local_response_dict'.
+                                  format(reg_type))
+        # requires approx. 500-750ms
 
     def read_all_registers(self) -> dict:
         """
