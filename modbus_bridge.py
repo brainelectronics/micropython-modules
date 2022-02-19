@@ -913,8 +913,8 @@ class ModbusBridge(object):
 
             operation_status = self.host.write_single_register(
                 slave_addr=slave_addr,
-                output_address=register_address,
-                output_value=register_value,
+                register_address=register_address,
+                register_value=register_value,
                 signed=signed)
 
             self.logger.debug('Result of setting HREGS {} to {}: {}'.
