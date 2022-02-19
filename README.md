@@ -17,13 +17,15 @@ description and usage instructions of each module.
 ## Setup
 
 Copy the module(s) to the MicroPython board and import them as shown below
+using [Remote MicroPython shell][ref-remote-upy-shell]
 
 ```bash
 mkdir /pyboard/helpers
 cp helpers/* /pyboard/helpers
 ```
 
-Install required dependencies (requires network connection, see WifiHelper)
+Install required dependencies (requires network connection, see may use the
+[`WifiHelper`][ref-wifi-helper])
 
 ```python
 import upip
@@ -247,6 +249,9 @@ pixel.color = 'DarlingColor'
 
 ### Modbus Bridge
 
+This requires [brainelectronics MicroPython Modbus][ref-be-upy-modbus]. Forked
+and extended from [SFERALABS Exo Sense Py][ref-sferalabs-exo-sense].
+
 ```python
 from helpers.modbus_bridge import ModbusBridge
 
@@ -328,3 +333,9 @@ print('SSID of strongest network: {}'.format(strongest_net))
 quality = WifiHelper.dbm_to_quality(dBm=wh.networks[0].RSSI)
 print('Quality of strongest network {}: {}%'.format(strongest_net, quality))
 ```
+
+<!-- Links -->
+[ref-remote-upy-shell]: https://github.com/dhylands/rshell
+[ref-wifi-helper]: wifi_helper.py
+[ref-be-upy-modbus]: https://github.com/brainelectronics/micropython-modbus
+[ref-sferalabs-exo-sense]: https://github.com/sfera-labs/exo-sense-py-modbus
