@@ -134,6 +134,12 @@ class ModbusBridge(object):
         if val:
             self._connection_settings_host = val
 
+            if val.get('unit', ''):
+                unit = val['unit']
+                self.logger.debug('Update host connection unit to: {}'.
+                                  format(unit))
+                self.host_unit = unit
+
     @property
     def connection_settings_client(self) -> dict:
         """
@@ -154,6 +160,12 @@ class ModbusBridge(object):
         """
         if val:
             self._connection_settings_client = val
+
+            if val.get('unit', ''):
+                unit = val['unit']
+                self.logger.debug('Update client connection unit to: {}'.
+                                  format(unit))
+                self.client_unit = unit
 
     @property
     def client(self) -> Union[None, None]:
@@ -216,7 +228,8 @@ class ModbusBridge(object):
         if isinstance(val, int):
             self._client_unit = val
         else:
-            raise ModbusBridgeError('Client unit shall be int')
+            raise ModbusBridgeError('Client unit shall be int, not {}'.
+                                    format(type(val)))
 
     @property
     def host_unit(self) -> int:
@@ -239,7 +252,8 @@ class ModbusBridge(object):
         if isinstance(val, int):
             self._host_unit = val
         else:
-            raise ModbusBridgeError('Host unit shall be int')
+            raise ModbusBridgeError('Host unit shall be int, not {}'.
+                                    format(type(val)))
 
     def _load_register_file(self) -> Dict[dict]:
         """
