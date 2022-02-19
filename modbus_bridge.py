@@ -389,8 +389,8 @@ class ModbusBridge(object):
                 pins=pins,
                 # ctrl_pin=MODBUS_PIN_TX_EN
             )
-            self.logger.debug('Created RTU host to collect from {} at {} baud'.
-                              format(pins, baudrate))
+            self.logger.info('Created RTU host to collect from {} at {} baud'.
+                             format(pins, baudrate))
         elif _client_cfg.get('type', '').lower() == 'tcp':
             # act as host, get Modbus data via TCP from a client device
             # do not use 'get()' here, as there exists no valid fallback value
@@ -400,8 +400,8 @@ class ModbusBridge(object):
                 slave_ip=slave_ip,
                 slave_port=port
             )
-            self.logger.debug('Created TCP host to collect from {}:{}'.
-                              format(slave_ip, port))
+            self.logger.info('Created TCP host to collect from {}:{}'.
+                             format(slave_ip, port))
 
         if _host_cfg.get('type', '').lower() == 'rtu':
             # act as client, provide Modbus data via RTU to a host device
@@ -419,8 +419,8 @@ class ModbusBridge(object):
                 pins=pins,
                 # ctrl_pin=MODBUS_PIN_TX_EN
             )
-            self.logger.debug('Created RTU client to serve on {} at {} baud'.
-                              format(bus_address, baudrate))
+            self.logger.info('Created RTU client to serve on {} at {} baud'.
+                             format(bus_address, baudrate))
         elif _host_cfg.get('type', '').lower() == 'tcp':
             # act as client, provide Modbus data via TCP to a host device
             _client = ModbusTCP()
@@ -449,8 +449,8 @@ class ModbusBridge(object):
                 _client.bind(local_ip=local_ip, local_port=port)
                 self.logger.debug('Modbus TCP client binding done')
 
-            self.logger.debug('Created TCP client to serve on {}:{}'.
-                              format(local_ip, port))
+            self.logger.info('Created TCP client to serve on {}:{}'.
+                             format(local_ip, port))
 
             _client.setup_registers(registers=self.register_definitions,
                                     use_default_vals=True)
@@ -518,6 +518,8 @@ class ModbusBridge(object):
             self.logger.debug('No IREGS defined, skipping')
 
         self.logger.debug('Complete read content: {}'.format(read_content))
+
+        return read_content
 
     def write_all_registers(self, modbus_registers: dict) -> None:
         """
