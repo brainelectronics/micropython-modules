@@ -828,7 +828,7 @@ class ModbusBridge(object):
             self.logger.debug('\tkey: {}'.format(key))
             self.logger.debug('\t\tval: {}'.format(val))
 
-            register_address = val['register']
+            register_address = key
             register_value = val['val']
 
             # @see lib/uModbus/functions.write_single_coil
@@ -908,7 +908,7 @@ class ModbusBridge(object):
             self.logger.debug('\tkey: {}'.format(key))
             self.logger.debug('\t\tval: {}'.format(val))
 
-            register_address = val['register']
+            register_address = key
             register_value = val['val']
 
             operation_status = self.host.write_single_register(
