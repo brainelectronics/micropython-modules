@@ -9,6 +9,7 @@ Create bridge between RTU and TCP modbus requests
 
 # system packages
 import gc
+import json
 import network
 import _thread
 import time
@@ -340,7 +341,8 @@ class ModbusBridge(object):
         self.logger.debug('Free memory: {}'.format(free))
 
         _client_data = self._client_data_msg.value()
-        self.logger.info('Latest client data: {}'.format(_client_data))
+        self.logger.info('Latest client data: {}'.
+                         format(json.dumps(_client_data)))
 
         # update data only if not empty
         if _client_data:
