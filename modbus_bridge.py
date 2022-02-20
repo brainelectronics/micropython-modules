@@ -639,10 +639,17 @@ class ModbusBridge(object):
                 if time.time() > (last_update + interval):
                     last_update = time.time()
                     last_update_ticks = time.ticks_ms()
+
+                    # update data of client with latest changed host data
+                    self._update_client_data()
+
+                    # update data on host with latest data of client
                     self._update_host_data()
+
                     time_diff = time.ticks_diff(time.ticks_ms(),
                                                 last_update_ticks)
-                    self.logger.info('Data sync took: {}'.format(time_diff))
+                    self.logger.info('Complete data sync took: {}'.
+                                     format(time_diff))
             except KeyboardInterrupt:
                 break
 
@@ -683,6 +690,46 @@ class ModbusBridge(object):
                 self.logger.debug('No {} defined in local_response_dict'.
                                   format(reg_type))
         # requires approx. 500-750ms
+
+    def _update_client_data(self) -> None:
+        """Update client Modbus data with latest changed data of host"""
+        last_update_ticks = time.ticks_ms()
+
+        _changed_registers = self.client.changed_registers
+        failed_registers = dict()
+        successfull_registers = dict()
+
+        if any(reg for reg in _changed_registers):
+            failed_registers, successfull_registers = self.write_all_registers(
+                modbus_registers=_changed_registers
+            )
+
+            for reg_type, val in successfull_registers.items():
+                # 'HREGS', {21: {'val': 21, 'time': 29900463}}
+                for reg, data in val.items():
+                    # 21, {'val': 21, 'time': 29900463}
+                    self.logger.debug('Remove {} at {} with timestamp {}'.
+                                      format(reg_type, int(reg), data['time']))
+
+                    try:
+                        self.client._remove_changed_register(
+                            reg_type=reg_type,
+                            address=int(reg),
+                            timestamp=data['time']
+                        )
+                    except Exception as e:
+                        self.logger.warning('Catched: {}'.format(e))
+
+            time_diff = time.ticks_diff(time.ticks_ms(),
+                                        last_update_ticks)
+            self.logger.info('Client data update took: {}'.
+                             format(time_diff))
+
+            if any(reg for reg in self.client.changed_registers.values()):
+                self.logger.info('Try updating these in next run again {}'.
+                                 format(self.client.changed_registers))
+        else:
+            self.logger.info('No changed registers, skipping this steps')
 
     def read_all_registers(self) -> dict:
         """
