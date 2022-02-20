@@ -618,7 +618,7 @@ class ModbusBridge(object):
             except KeyboardInterrupt:
                 break
 
-        print('Finished collecting client data')
+        self.logger.debug('Finished collecting client data')
 
     def _provision_host_data(self, interval: int, lock: int) -> None:
         """
@@ -655,7 +655,7 @@ class ModbusBridge(object):
             except KeyboardInterrupt:
                 break
 
-        print('Finished provisioning host data')
+        self.logger.debug('Finished provisioning host data')
 
     def _update_host_data(self) -> None:
         """Update host Modbus data with latest data received from client"""
