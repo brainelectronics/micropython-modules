@@ -818,26 +818,30 @@ class ModbusBridge(object):
             register_address = val['register']
             count = val['len']
 
-            coil_status = self.host.read_coils(
-                slave_addr=slave_addr,
-                starting_addr=register_address,
-                coil_qty=count)
+            try:
+                coil_status = self.host.read_coils(
+                    slave_addr=slave_addr,
+                    starting_addr=register_address,
+                    coil_qty=count)
 
-            if len(coil_status) == 1:
-                # only a single value
-                register_content[key] = {
-                    'register': register_address,
-                    'val': coil_status[0]
-                }
-            else:
-                # convert the tuple to list to be JSON conform
-                register_content[key] = {
-                    'register': register_address,
-                    'val': list(coil_status)
-                }
+                if len(coil_status) == 1:
+                    # only a single value
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': coil_status[0]
+                    }
+                else:
+                    # convert the tuple to list to be JSON conform
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': list(coil_status)
+                    }
 
-            self.logger.debug('\t{}\t{}'.format(register_address,
-                                                coil_status))
+                self.logger.debug('\t{}\t{}'.format(register_address,
+                                                    coil_status))
+            except Exception as e:
+                self.logger.warning('Getting COIL {} failed, catched: {}'.
+                                    format(register_address, e))
 
         return register_content
 
@@ -863,6 +867,7 @@ class ModbusBridge(object):
 
             register_address = key
             register_value = val['val']
+            operation_status = False
 
             # @see lib/uModbus/functions.write_single_coil
             if register_value is True:
@@ -870,10 +875,14 @@ class ModbusBridge(object):
             else:
                 register_value = 0x0000
 
-            operation_status = self.host.write_single_coil(
-                slave_addr=slave_addr,
-                output_address=register_address,
-                output_value=register_value)
+            try:
+                operation_status = self.host.write_single_coil(
+                    slave_addr=slave_addr,
+                    output_address=register_address,
+                    output_value=register_value)
+            except Exception as e:
+                self.logger.warning('Setting COIL {} failed, catched: {}'.
+                                    format(register_address, e))
 
             self.logger.debug('Result of setting COIL {} to {}: {}'.
                               format(register_address,
@@ -908,27 +917,31 @@ class ModbusBridge(object):
             register_address = val['register']
             count = val['len']
 
-            register_value = self.host.read_holding_registers(
-                slave_addr=slave_addr,
-                starting_addr=register_address,
-                register_qty=count,
-                signed=signed)
+            try:
+                register_value = self.host.read_holding_registers(
+                    slave_addr=slave_addr,
+                    starting_addr=register_address,
+                    register_qty=count,
+                    signed=signed)
 
-            if len(register_value) == 1:
-                # only a single value
-                register_content[key] = {
-                    'register': register_address,
-                    'val': register_value[0]
-                }
-            else:
-                # convert the tuple to list to be JSON conform
-                register_content[key] = {
-                    'register': register_address,
-                    'val': list(register_value)
-                }
+                if len(register_value) == 1:
+                    # only a single value
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': register_value[0]
+                    }
+                else:
+                    # convert the tuple to list to be JSON conform
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': list(register_value)
+                    }
 
-            self.logger.debug('\t{}\t{}'.format(register_address,
-                                                register_value))
+                self.logger.debug('\t{}\t{}'.format(register_address,
+                                                    register_value))
+            except Exception as e:
+                self.logger.warning('Getting HREG {} failed, catched: {}'.
+                                    format(register_address, e))
 
         return register_content
 
@@ -955,12 +968,17 @@ class ModbusBridge(object):
 
             register_address = key
             register_value = val['val']
+            operation_status = False
 
-            operation_status = self.host.write_single_register(
-                slave_addr=slave_addr,
-                register_address=register_address,
-                register_value=register_value,
-                signed=signed)
+            try:
+                operation_status = self.host.write_single_register(
+                    slave_addr=slave_addr,
+                    register_address=register_address,
+                    register_value=register_value,
+                    signed=signed)
+            except Exception as e:
+                self.logger.warning('Setting HREG {} failed, catched: {}'.
+                                    format(register_address, e))
 
             self.logger.debug('Result of setting HREGS {} to {}: {}'.
                               format(register_address,
@@ -995,26 +1013,30 @@ class ModbusBridge(object):
             register_address = val['register']
             count = val['len']
 
-            input_status = self.host.read_discrete_inputs(
-                slave_addr=slave_addr,
-                starting_addr=register_address,
-                input_qty=count)
+            try:
+                input_status = self.host.read_discrete_inputs(
+                    slave_addr=slave_addr,
+                    starting_addr=register_address,
+                    input_qty=count)
 
-            if len(input_status) == 1:
-                # only a single value
-                register_content[key] = {
-                    'register': register_address,
-                    'val': input_status[0]
-                }
-            else:
-                # convert the tuple to list to be JSON conform
-                register_content[key] = {
-                    'register': register_address,
-                    'val': list(input_status)
-                }
+                if len(input_status) == 1:
+                    # only a single value
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': input_status[0]
+                    }
+                else:
+                    # convert the tuple to list to be JSON conform
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': list(input_status)
+                    }
 
-            self.logger.debug('\t{}\t{}'.format(register_address,
-                                                input_status))
+                self.logger.debug('\t{}\t{}'.format(register_address,
+                                                    input_status))
+            except Exception as e:
+                self.logger.warning('Setting HREG {} failed, catched: {}'.
+                                    format(register_address, e))
 
         return register_content
 
@@ -1039,26 +1061,30 @@ class ModbusBridge(object):
             register_address = val['register']
             count = val['len']
 
-            register_value = self.host.read_input_registers(
-                slave_addr=slave_addr,
-                starting_addr=register_address,
-                register_qty=count,
-                signed=signed)
+            try:
+                register_value = self.host.read_input_registers(
+                    slave_addr=slave_addr,
+                    starting_addr=register_address,
+                    register_qty=count,
+                    signed=signed)
 
-            if len(register_value) == 1:
-                # only a single value
-                register_content[key] = {
-                    'register': register_address,
-                    'val': register_value[0]
-                }
-            else:
-                # convert the tuple to list to be JSON conform
-                register_content[key] = {
-                    'register': register_address,
-                    'val': list(register_value)
-                }
+                if len(register_value) == 1:
+                    # only a single value
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': register_value[0]
+                    }
+                else:
+                    # convert the tuple to list to be JSON conform
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': list(register_value)
+                    }
 
-            self.logger.debug('\t{}\t{}'.format(register_address,
-                                                register_value))
+                self.logger.debug('\t{}\t{}'.format(register_address,
+                                                    register_value))
+            except Exception as e:
+                self.logger.warning('Getting IREG {} failed, catched: {}'.
+                                    format(register_address, e))
 
         return register_content
