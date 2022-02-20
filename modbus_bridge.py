@@ -486,7 +486,7 @@ class ModbusBridge(object):
             result = True
 
         if result is False:
-            self.logger.warning('No valid local IP found, using default')
+            self.logger.info('No valid local IP found, using default')
 
         return local_ip
 
@@ -639,18 +639,12 @@ class ModbusBridge(object):
                 # check time for data synchronisation
                 if time.time() > (last_update + interval):
                     last_update = time.time()
-                    last_update_ticks = time.ticks_ms()
 
                     # update data of client with latest changed host data
                     self._update_client_data()
 
                     # update data on host with latest data of client
                     self._update_host_data()
-
-                    time_diff = time.ticks_diff(time.ticks_ms(),
-                                                last_update_ticks)
-                    self.logger.debug('Complete data sync took: {}'.
-                                      format(time_diff))
                     # requires approx. 3000-5500ms
             except KeyboardInterrupt:
                 break
@@ -722,7 +716,8 @@ class ModbusBridge(object):
                             timestamp=data['time']
                         )
                     except Exception as e:
-                        self.logger.warning('Catched: {}'.format(e))
+                        self.logger.info('Failed to remove {}, catched: {}'.
+                                         format(reg, e))
 
             time_diff = time.ticks_diff(time.ticks_ms(),
                                         last_update_ticks)
@@ -747,19 +742,10 @@ class ModbusBridge(object):
 
         # lock client ressource
         self._client_usage_lock.acquire()
-        ressource_acquire_ticks = time.ticks_ms()
-        self.logger.debug('READ: Acquired ressource at {}ms'.
-                          format(ressource_acquire_ticks))
 
         # idle until ressource is locked
         while not self._client_usage_lock.locked():
             machine.idle()
-
-        ressource_granted_ticks = time.ticks_ms()
-        time_diff = time.ticks_diff(ressource_granted_ticks,
-                                    ressource_acquire_ticks)
-        self.logger.debug('READ: Granted ressource after {}ms'.
-                          format(time_diff))
 
         # Coils (setter+getter) [0, 1]
         self.logger.debug('Coils:')
@@ -804,10 +790,6 @@ class ModbusBridge(object):
 
         # release ressource
         self._client_usage_lock.release()
-        time_diff = time.ticks_diff(time.ticks_ms(),
-                                    ressource_granted_ticks)
-        self.logger.debug('READ: Release ressource after (locked for) {}ms'.
-                          format(time_diff))
 
         self.logger.debug('Complete read content: {}'.format(read_content))
 
@@ -831,19 +813,10 @@ class ModbusBridge(object):
 
         # lock client ressource
         self._client_usage_lock.acquire()
-        ressource_acquire_ticks = time.ticks_ms()
-        self.logger.debug('WRITE: Acquired ressource at {}ms'.
-                          format(ressource_acquire_ticks))
 
         # idle until ressource is locked
         while not self._client_usage_lock.locked():
             machine.idle()
-
-        ressource_granted_ticks = time.ticks_ms()
-        time_diff = time.ticks_diff(ressource_granted_ticks,
-                                    ressource_acquire_ticks)
-        self.logger.debug('WRITE: Granted ressource after {}ms'.
-                          format(time_diff))
 
         # Coils (setter+getter) [0, 1]
         self.logger.debug('Coils:')
@@ -887,10 +860,6 @@ class ModbusBridge(object):
 
         # release ressource
         self._client_usage_lock.release()
-        time_diff = time.ticks_diff(time.ticks_ms(),
-                                    ressource_granted_ticks)
-        self.logger.debug('WRITE: Release ressource after (locked for) {}ms'.
-                          format(time_diff))
 
         if any(reg for reg in failed_registers.values()):
             self.logger.info('Failed register updates: {}'.
@@ -940,8 +909,8 @@ class ModbusBridge(object):
                 self.logger.debug('\t{}\t{}'.format(register_address,
                                                     coil_status))
             except Exception as e:
-                self.logger.warning('Getting COIL {} failed, catched: {}'.
-                                    format(register_address, e))
+                self.logger.info('Getting COIL {} failed, catched: {}'.
+                                 format(register_address, e))
 
         return register_content
 
@@ -981,8 +950,8 @@ class ModbusBridge(object):
                     output_address=register_address,
                     output_value=register_value)
             except Exception as e:
-                self.logger.warning('Setting COIL {} failed, catched: {}'.
-                                    format(register_address, e))
+                self.logger.info('Setting COIL {} failed, catched: {}'.
+                                 format(register_address, e))
 
             self.logger.debug('Result of setting COIL {} to {}: {}'.
                               format(register_address,
@@ -1040,8 +1009,8 @@ class ModbusBridge(object):
                 self.logger.debug('\t{}\t{}'.format(register_address,
                                                     register_value))
             except Exception as e:
-                self.logger.warning('Getting HREG {} failed, catched: {}'.
-                                    format(register_address, e))
+                self.logger.info('Getting HREG {} failed, catched: {}'.
+                                 format(register_address, e))
 
         return register_content
 
@@ -1077,8 +1046,8 @@ class ModbusBridge(object):
                     register_value=register_value,
                     signed=signed)
             except Exception as e:
-                self.logger.warning('Setting HREG {} failed, catched: {}'.
-                                    format(register_address, e))
+                self.logger.info('Setting HREG {} failed, catched: {}'.
+                                 format(register_address, e))
 
             self.logger.debug('Result of setting HREGS {} to {}: {}'.
                               format(register_address,
@@ -1135,8 +1104,8 @@ class ModbusBridge(object):
                 self.logger.debug('\t{}\t{}'.format(register_address,
                                                     input_status))
             except Exception as e:
-                self.logger.warning('Setting HREG {} failed, catched: {}'.
-                                    format(register_address, e))
+                self.logger.info('Setting HREG {} failed, catched: {}'.
+                                 format(register_address, e))
 
         return register_content
 
@@ -1184,7 +1153,7 @@ class ModbusBridge(object):
                 self.logger.debug('\t{}\t{}'.format(register_address,
                                                     register_value))
             except Exception as e:
-                self.logger.warning('Getting IREG {} failed, catched: {}'.
-                                    format(register_address, e))
+                self.logger.info('Getting IREG {} failed, catched: {}'.
+                                 format(register_address, e))
 
         return register_content
