@@ -253,26 +253,64 @@ This requires [brainelectronics MicroPython Modbus][ref-be-upy-modbus]. Forked
 and extended from [SFERALABS Exo Sense Py][ref-sferalabs-exo-sense].
 
 ```python
+import time
+import machine
+
 from helpers.modbus_bridge import ModbusBridge
 
 register_file = 'registers/modbusRegisters-MyEVSE.json'
+rtu_pins = (25, 26)     # (TX, RX)
+tcp_port = 180          # TCP port for Modbus connection
+run_time = 60           # run this example for this amount of seconds
 
+# default level is 'warning', may use custom logger to get initial log data
 mb_bridge = ModbusBridge(register_file=register_file)
 
-# set Modbus host settings
+# define and apply Modbus TCP host settings
 host_settings = {
     'type': 'tcp',
-    'unit': 502,
-    'address': '192.168.32.12',
+    'unit': tcp_port,
+    'address': -1,
     'baudrate': -1,
     'mode': 'master'
 }
 mb_bridge.connection_settings_host = host_settings
 
 # setup Modbus connections to host and client
-mb_bridge.setup_connection(pins=(25, 26))   # (TX, RX)
+mb_bridge.setup_connection(pins=rtu_pins)   # (TX, RX)
 
-mb_bridge.read_all_registers()
+print('Modbus instances:')
+print('\t Act as Host: {} on {}'.format(mb_bridge.host, mb_bridge.host_unit))
+print('\t Act as Client: {} on {}'.format(mb_bridge.client, mb_bridge.client_unit))
+
+# readout the client registers once manually
+# mb_bridge.read_all_registers()
+
+# start collecting latest RTU client data in thread and TCP data provision
+mb_bridge.collecting_client_data = True
+mb_bridge.provisioning_host_data = True
+
+print('Run client and host for {} seconds'.format(run_time))
+print('Collect latest client data every {} seconds'.format(mb_bridge.collection_interval))
+print('Synchronize Host-Client every {} seconds'.format(mb_bridge.synchronisation_interval))
+
+start_time = time.time()
+while time.time() < (start_time + run_time):
+    try:
+        machine.idle()
+    except KeyboardInterrupt:
+        print('KeyboardInterrupt, stop collection + provisioning after {}'.
+              format(time.time() - start_time))
+        break
+    except Exception as e:
+        print('Exception: {}'.format(e))
+
+# stop collecting latest client data in thread and data provision via TCP
+mb_bridge.collecting_client_data = False
+mb_bridge.provisioning_host_data = False
+
+# wait for 5 more seconds to safely finish the may still running threads
+time.sleep(5)
 ```
 
 ### Path Helper
