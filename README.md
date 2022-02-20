@@ -14,6 +14,16 @@ brainelectronics projects.
 For the individual usage of a helper, module or wrapper read the brief
 description and usage instructions of each module.
 
+<!-- TOC -->
+ - [Generic Helper](#generic-helper)
+ - [LED Helper](#led-helper)
+     - [Onboard LED](#onboard-led)
+     - [Neopixel](#neopixel)
+ - [Modbus TCP-RTU bridge](#modbus-bridge)
+ - [Path Helper](#path-helper)
+ - [Time Helper](#time-helper)
+ - [WiFi Helper](#wifi-helper)
+
 ## Setup
 
 Copy the module(s) to the MicroPython board and import them as shown below
