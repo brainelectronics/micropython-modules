@@ -31,7 +31,7 @@ from modbus import ModbusRTU
 from modbus import ModbusTCP
 
 # not natively supported on micropython, see lib/typing.py
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Tuple, Union
 
 
 class ModbusBridgeError(Exception):
@@ -45,7 +45,7 @@ class ModbusBridge(object):
         # setup and configure logger if none is provided
         if logger is None:
             logger = GenericHelper.create_logger(logger_name=self.__class__.__name__)
-            GenericHelper.set_level(logger, 'debug')
+            GenericHelper.set_level(logger, 'warning')
         self.logger = logger
         self.logger.disabled = quiet
 
@@ -342,8 +342,8 @@ class ModbusBridge(object):
         self.logger.debug('Free memory: {}'.format(free))
 
         _client_data = self._client_data_msg.value()
-        self.logger.info('Latest client data: {}'.
-                         format(json.dumps(_client_data)))
+        self.logger.debug('Latest client data: {}'.
+                          format(json.dumps(_client_data)))
 
         # update data only if not empty
         if _client_data:
@@ -649,8 +649,9 @@ class ModbusBridge(object):
 
                     time_diff = time.ticks_diff(time.ticks_ms(),
                                                 last_update_ticks)
-                    self.logger.info('Complete data sync took: {}'.
-                                     format(time_diff))
+                    self.logger.debug('Complete data sync took: {}'.
+                                      format(time_diff))
+                    # requires approx. 3000-5500ms
             except KeyboardInterrupt:
                 break
 
@@ -700,7 +701,9 @@ class ModbusBridge(object):
         failed_registers = dict()
         successfull_registers = dict()
 
-        if any(reg for reg in _changed_registers):
+        if any(reg for reg in _changed_registers.values()):
+            self.logger.debug('Changed registers: {}'.
+                              format(_changed_registers))
             failed_registers, successfull_registers = self.write_all_registers(
                 modbus_registers=_changed_registers
             )
@@ -723,14 +726,14 @@ class ModbusBridge(object):
 
             time_diff = time.ticks_diff(time.ticks_ms(),
                                         last_update_ticks)
-            self.logger.info('Client data update took: {}'.
-                             format(time_diff))
+            self.logger.debug('Client data update took: {}'.
+                              format(time_diff))
 
             if any(reg for reg in self.client.changed_registers.values()):
                 self.logger.info('Try updating these in next run again {}'.
                                  format(self.client.changed_registers))
         else:
-            self.logger.info('No changed registers, skipping this steps')
+            self.logger.debug('No changed registers, skipping this steps')
 
     def read_all_registers(self) -> dict:
         """
@@ -886,11 +889,12 @@ class ModbusBridge(object):
         self._client_usage_lock.release()
         time_diff = time.ticks_diff(time.ticks_ms(),
                                     ressource_granted_ticks)
-        self.logger.info('WRITE: Release ressource after (locked for) {}ms'.
-                         format(time_diff))
+        self.logger.debug('WRITE: Release ressource after (locked for) {}ms'.
+                          format(time_diff))
 
-        self.logger.info('Failed register updates: {}'.
-                         format(failed_registers))
+        if any(reg for reg in failed_registers.values()):
+            self.logger.info('Failed register updates: {}'.
+                             format(failed_registers))
 
         return failed_registers, successfull_registers
 
