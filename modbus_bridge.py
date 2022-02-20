@@ -9,7 +9,11 @@ Create bridge between RTU and TCP modbus requests
 
 # system packages
 import gc
+import json
+import machine
 import network
+import _thread
+import time
 
 # pip installed packages
 # import picoweb
@@ -27,7 +31,7 @@ from modbus import ModbusRTU
 from modbus import ModbusTCP
 
 # not natively supported on micropython, see lib/typing.py
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Tuple, Union
 
 
 class ModbusBridgeError(Exception):
@@ -41,7 +45,7 @@ class ModbusBridge(object):
         # setup and configure logger if none is provided
         if logger is None:
             logger = GenericHelper.create_logger(logger_name=self.__class__.__name__)
-            GenericHelper.set_level(logger, 'debug')
+            GenericHelper.set_level(logger, 'warning')
         self.logger = logger
         self.logger.disabled = quiet
 
@@ -54,6 +58,25 @@ class ModbusBridge(object):
         self._client = None
         self._host = None
 
+        # client data collection specific defines
+        self._collect_lock = _thread.allocate_lock()
+        self._collect_interval = 10  # seconds
+        # Queue also works, but in this case there is no need for a history
+        self._client_data_msg = Message()
+        self._client_data_msg.set({})  # empty dict
+        self._client_data = {}
+        # flag to start/stop the client data collection thread
+        self.collecting_client_data = False
+
+        # host data provision specific defines
+        self._provision_lock = _thread.allocate_lock()
+        # flag to start/stop the host data provision thread
+        self.provisioning_host_data = False
+
+        # data sync specific defined
+        self._client_usage_lock = _thread.allocate_lock()
+        self._sync_interval = 10  # seconds
+
         # set register file and load its definitions
         self.register_file = register_file
         self.register_definitions = self._load_register_file()
@@ -63,6 +86,8 @@ class ModbusBridge(object):
 
         # run garbage collector at the end to clean up
         gc.collect()
+
+        self.logger.debug('ModbusBridge setup finished')
 
     @property
     def register_file(self) -> str:
@@ -134,6 +159,12 @@ class ModbusBridge(object):
         if val:
             self._connection_settings_host = val
 
+            if val.get('unit', ''):
+                unit = val['unit']
+                self.logger.debug('Update host connection unit to: {}'.
+                                  format(unit))
+                self.host_unit = unit
+
     @property
     def connection_settings_client(self) -> dict:
         """
@@ -154,6 +185,12 @@ class ModbusBridge(object):
         """
         if val:
             self._connection_settings_client = val
+
+            if val.get('unit', ''):
+                unit = val['unit']
+                self.logger.debug('Update client connection unit to: {}'.
+                                  format(unit))
+                self.client_unit = unit
 
     @property
     def client(self) -> Union[None, None]:
@@ -216,7 +253,8 @@ class ModbusBridge(object):
         if isinstance(val, int):
             self._client_unit = val
         else:
-            raise ModbusBridgeError('Client unit shall be int')
+            raise ModbusBridgeError('Client unit shall be int, not {}'.
+                                    format(type(val)))
 
     @property
     def host_unit(self) -> int:
@@ -239,7 +277,112 @@ class ModbusBridge(object):
         if isinstance(val, int):
             self._host_unit = val
         else:
-            raise ModbusBridgeError('Host unit shall be int')
+            raise ModbusBridgeError('Host unit shall be int, not {}'.
+                                    format(type(val)))
+
+    @property
+    def collection_interval(self) -> int:
+        """
+        Get the client Modbus data collection interval in seconds.
+
+        :returns:   Interval of Modbus client data collection in seconds
+        :rtype:     int
+        """
+        return self._collect_interval
+
+    @property
+    def synchronisation_interval(self) -> int:
+        """
+        Get the host-client data synchronisation interval in seconds.
+
+        :returns:   Interval of Modbus data synchronisation of host<->client
+        :rtype:     int
+        """
+        return self._sync_interval
+
+    @property
+    def collecting_client_data(self) -> bool:
+        """
+        Get the client data collection status.
+
+        :returns:   Flag client data collection is running or not.
+        :rtype:     bool
+        """
+        return self._collect_lock.locked()
+
+    @collecting_client_data.setter
+    def collecting_client_data(self, value: bool) -> None:
+        """
+        Start or stop collecting client data
+
+        :param      value:  The value
+        :type       value:  bool
+        """
+        if value and (not self._collect_lock.locked()):
+            # start collecting client data if not already collecting
+            self._collect_lock.acquire()
+
+            # parameters of the _collect_client_data function
+            params = (
+                self._client_data_msg,
+                self.collection_interval,
+                self._collect_lock
+            )
+            _thread.start_new_thread(self._collect_client_data, params)
+            self.logger.info('Collecting client data started')
+        elif (value is False) and self._collect_lock.locked():
+            # stop collecting client data if not already stopped
+            self._collect_lock.release()
+            self.logger.info('Collecting client data stoppped')
+
+    @property
+    def client_data(self) -> Dict[dict]:
+        gc.collect()
+        free = gc.mem_free()
+        self.logger.debug('Free memory: {}'.format(free))
+
+        _client_data = self._client_data_msg.value()
+        self.logger.debug('Latest client data: {}'.
+                          format(json.dumps(_client_data)))
+
+        # update data only if not empty
+        if _client_data:
+            self._client_data = _client_data
+        return self._client_data
+
+    @property
+    def provisioning_host_data(self) -> bool:
+        """
+        Get the host data provision status.
+
+        :returns:   Flag host data provision is running or not.
+        :rtype:     bool
+        """
+        return self._provision_lock.locked()
+
+    @provisioning_host_data.setter
+    def provisioning_host_data(self, value: bool) -> None:
+        """
+        Start or stop provisioning host data
+
+        :param      value:  The value
+        :type       value:  bool
+        """
+        if value and (not self._provision_lock.locked()):
+            # start provisioning host data if not already provisioning
+            self._provision_lock.acquire()
+
+            # parameters of the _provision_host_data function
+            params = (
+                self.synchronisation_interval,
+                self._provision_lock
+            )
+            _thread.start_new_thread(self._provision_host_data, params)
+            self.logger.info('Provisioning host data started')
+        elif (value is False) and self._provision_lock.locked():
+            # stop provisioning host data if not already stopped
+            self._provision_lock.release()
+            self.logger.info('Provisioning host data stoppped')
 
     def _load_register_file(self) -> Dict[dict]:
         """
@@ -343,7 +486,7 @@ class ModbusBridge(object):
             result = True
 
         if result is False:
-            self.logger.warning('No valid local IP found, using default')
+            self.logger.info('No valid local IP found, using default')
 
         return local_ip
 
@@ -375,8 +518,8 @@ class ModbusBridge(object):
                 pins=pins,
                 # ctrl_pin=MODBUS_PIN_TX_EN
             )
-            self.logger.debug('Created RTU host to collect from {} at {} baud'.
-                              format(pins, baudrate))
+            self.logger.info('Created RTU host to collect from {} at {} baud'.
+                             format(pins, baudrate))
         elif _client_cfg.get('type', '').lower() == 'tcp':
             # act as host, get Modbus data via TCP from a client device
             # do not use 'get()' here, as there exists no valid fallback value
@@ -386,8 +529,8 @@ class ModbusBridge(object):
                 slave_ip=slave_ip,
                 slave_port=port
             )
-            self.logger.debug('Created TCP host to collect from {}:{}'.
-                              format(slave_ip, port))
+            self.logger.info('Created TCP host to collect from {}:{}'.
+                             format(slave_ip, port))
 
         if _host_cfg.get('type', '').lower() == 'rtu':
             # act as client, provide Modbus data via RTU to a host device
@@ -405,8 +548,8 @@ class ModbusBridge(object):
                 pins=pins,
                 # ctrl_pin=MODBUS_PIN_TX_EN
             )
-            self.logger.debug('Created RTU client to serve on {} at {} baud'.
-                              format(bus_address, baudrate))
+            self.logger.info('Created RTU client to serve on {} at {} baud'.
+                             format(bus_address, baudrate))
         elif _host_cfg.get('type', '').lower() == 'tcp':
             # act as client, provide Modbus data via TCP to a host device
             _client = ModbusTCP()
@@ -435,8 +578,8 @@ class ModbusBridge(object):
                 _client.bind(local_ip=local_ip, local_port=port)
                 self.logger.debug('Modbus TCP client binding done')
 
-            self.logger.debug('Created TCP client to serve on {}:{}'.
-                              format(local_ip, port))
+            self.logger.info('Created TCP client to serve on {}:{}'.
+                             format(local_ip, port))
 
             _client.setup_registers(registers=self.register_definitions,
                                     use_default_vals=True)
@@ -452,6 +595,141 @@ class ModbusBridge(object):
                                  address=local_ip,
                                  port=_host_cfg['unit']))
 
+    def _collect_client_data(self, msg: Message, interval: int, lock: int) -> None:
+        """
+        Collect client Modbus data
+
+        :param      msg:        The shared message from this thread
+        :type       msg:        Message
+        :param      interval:   The data collection interval in seconds
+        :type       interval:   int
+        :param      lock:       The lock object
+        :type       lock:       _thread.lock
+        """
+        while lock.locked():
+            try:
+                # collect latest data from client
+                read_content = self.read_all_registers()
+
+                msg.set(read_content)
+
+                # wait for specified time
+                time.sleep(interval)
+            except KeyboardInterrupt:
+                break
+
+        self.logger.debug('Finished collecting client data')
+
+    def _provision_host_data(self, interval: int, lock: int) -> None:
+        """
+        Provision host Modbus data
+
+        :param      interval:   The data synchronisation interval in seconds
+        :type       interval:   int
+        :param      lock:       The lock object
+        :type       lock:       _thread.lock
+        """
+        last_update = time.time()
+
+        while lock.locked():
+            try:
+                # serve requests as host
+                self.client.process()
+
+                # check time for data synchronisation
+                if time.time() > (last_update + interval):
+                    last_update = time.time()
+
+                    # update data of client with latest changed host data
+                    self._update_client_data()
+
+                    # update data on host with latest data of client
+                    self._update_host_data()
+                    # requires approx. 3000-5500ms
+            except KeyboardInterrupt:
+                break
+
+        self.logger.debug('Finished provisioning host data')
+
+    def _update_host_data(self) -> None:
+        """Update host Modbus data with latest data received from client"""
+        _client_data = self.client_data
+        _client = self.client
+
+        # update all registers of host with the latest client data
+        for reg_type in ['COILS', 'HREGS', 'ISTS', 'IREGS']:
+            if reg_type in _client_data:
+                for reg, val in _client_data[reg_type].items():
+                    if 'val' in val:
+                        address = val['register']
+                        value = val['val']
+
+                        if reg_type == 'COILS':
+                            # set register will add it if not yet there
+                            _client.set_coil(address=address, value=value)
+                        elif reg_type == 'HREGS':
+                            # set register will add it if not yet there
+                            _client.set_hreg(address=address, value=value)
+                        elif reg_type == 'ISTS':
+                            # set register will add it if not yet there
+                            _client.set_ist(address=address, value=value)
+                        elif reg_type == 'IREGS':
+                            # set register will add it if not yet there
+                            _client.set_ireg(address=address, value=value)
+                        else:
+                            # invalid register type
+                            pass
+                    else:
+                        # no value for this register in response dict
+                        pass
+            else:
+                self.logger.debug('No {} defined in local_response_dict'.
+                                  format(reg_type))
+        # requires approx. 500-750ms
+
+    def _update_client_data(self) -> None:
+        """Update client Modbus data with latest changed data of host"""
+        last_update_ticks = time.ticks_ms()
+
+        _changed_registers = self.client.changed_registers
+        failed_registers = dict()
+        successfull_registers = dict()
+
+        if any(reg for reg in _changed_registers.values()):
+            self.logger.debug('Changed registers: {}'.
+                              format(_changed_registers))
+            failed_registers, successfull_registers = self.write_all_registers(
+                modbus_registers=_changed_registers
+            )
+
+            for reg_type, val in successfull_registers.items():
+                # 'HREGS', {21: {'val': 21, 'time': 29900463}}
+                for reg, data in val.items():
+                    # 21, {'val': 21, 'time': 29900463}
+                    self.logger.debug('Remove {} at {} with timestamp {}'.
+                                      format(reg_type, int(reg), data['time']))
+
+                    try:
+                        self.client._remove_changed_register(
+                            reg_type=reg_type,
+                            address=int(reg),
+                            timestamp=data['time']
+                        )
+                    except Exception as e:
+                        self.logger.info('Failed to remove {}, catched: {}'.
+                                         format(reg, e))
+
+            time_diff = time.ticks_diff(time.ticks_ms(),
+                                        last_update_ticks)
+            self.logger.debug('Client data update took: {}'.
+                              format(time_diff))
+
+            if any(reg for reg in self.client.changed_registers.values()):
+                self.logger.info('Try updating these in next run again {}'.
+                                 format(self.client.changed_registers))
+        else:
+            self.logger.debug('No changed registers, skipping this steps')
+
     def read_all_registers(self) -> dict:
         """
         Read all modbus registers (from client).
@@ -462,81 +740,132 @@ class ModbusBridge(object):
         read_content = dict()
         modbus_registers = self.register_definitions
 
+        # lock client ressource
+        self._client_usage_lock.acquire()
+
+        # idle until ressource is locked
+        while not self._client_usage_lock.locked():
+            machine.idle()
+
         # Coils (setter+getter) [0, 1]
-        self.logger.info('Coils:')
+        self.logger.debug('Coils:')
         if 'COILS' in modbus_registers:
             coil_register_content = self.read_coil_registers()
             self.logger.debug('coil_register_content: {}'.
                               format(coil_register_content))
 
-            read_content.update(coil_register_content)
+            read_content['COILS'] = coil_register_content
         else:
-            self.logger.info('No COILS defined, skipping')
+            self.logger.debug('No COILS defined, skipping')
 
         # Hregs (setter+getter) [0, 65535]
-        self.logger.info('Hregs:')
+        self.logger.debug('Hregs:')
         if 'HREGS' in modbus_registers:
             hreg_register_content = self.read_hregs_registers()
             self.logger.debug('hreg_register_content: {}'.
                               format(hreg_register_content))
-            read_content.update(hreg_register_content)
+            read_content['HREGS'] = hreg_register_content
         else:
-            self.logger.info('No HREGS defined, skipping')
+            self.logger.debug('No HREGS defined, skipping')
 
         # Ists (only getter) [0, 1]
-        self.logger.info('Ists:')
+        self.logger.debug('Ists:')
         if 'ISTS' in modbus_registers:
             input_status_content = self.read_ists_registers()
             self.logger.debug('input_status_content: {}'.
                               format(input_status_content))
-            read_content.update(input_status_content)
+            read_content['ISTS'] = input_status_content
         else:
-            self.logger.info('No ISTS defined, skipping')
+            self.logger.debug('No ISTS defined, skipping')
 
         # Iregs (only getter) [0, 65535]
-        self.logger.info('Iregs:')
+        self.logger.debug('Iregs:')
         if 'IREGS' in modbus_registers:
             ireg_register_content = self.read_iregs_registers()
             self.logger.debug('ireg_register_content: {}'.
                               format(ireg_register_content))
-            read_content.update(ireg_register_content)
+            read_content['IREGS'] = ireg_register_content
         else:
-            self.logger.info('No IREGS defined, skipping')
+            self.logger.debug('No IREGS defined, skipping')
+
+        # release ressource
+        self._client_usage_lock.release()
 
         self.logger.debug('Complete read content: {}'.format(read_content))
 
-    def write_all_registers(self, modbus_registers: dict) -> None:
+        return read_content
+
+    def write_all_registers(self, modbus_registers: dict) -> Tuple[dict, dict]:
         """
         Write all modbus registers (of/to client).
 
         :param      modbus_registers:  The modbus registers
         :type       modbus_registers:  dict
+
+        :returns:   Tuple of failed and successfully updated registers dict
+        :rtype:     Tuple[dict, dict]
         """
+        failed_registers = dict()
+        successfull_registers = dict()
+
+        self.logger.debug('Update registers content: {}'.
+                          format(modbus_registers))
+
+        # lock client ressource
+        self._client_usage_lock.acquire()
+
+        # idle until ressource is locked
+        while not self._client_usage_lock.locked():
+            machine.idle()
+
         # Coils (setter+getter) [0, 1]
-        self.logger.info('Coils:')
+        self.logger.debug('Coils:')
         if 'COILS' in modbus_registers:
-            self.write_coil_registers(
+            failed_coils, successful_coils = self.write_coil_registers(
                 modbus_registers=modbus_registers['COILS']
             )
+            self.logger.debug('failed_coils: {}'.
+                              format(failed_coils))
+
+            if failed_coils:
+                failed_registers['COILS'] = failed_coils
+            if successful_coils:
+                successfull_registers['COILS'] = successful_coils
         else:
-            self.logger.info('No COILS defined, skipping')
+            self.logger.debug('No COILS defined, skipping')
 
         # Hregs (setter+getter) [0, 65535]
-        self.logger.info('Hregs:')
+        self.logger.debug('Hregs:')
         if 'HREGS' in modbus_registers:
-            self.write_hregs_registers(
+            failed_hregs, successful_hregs = self.write_hregs_registers(
                 modbus_registers=modbus_registers['HREGS']
             )
+            self.logger.debug('failed_hregs: {}'.
+                              format(failed_hregs))
+
+            if failed_hregs:
+                failed_registers['HREGS'] = failed_hregs
+            if successful_hregs:
+                successfull_registers['HREGS'] = successful_hregs
         else:
-            self.logger.info('No HREGS defined, skipping')
+            self.logger.debug('No HREGS defined, skipping')
 
         # Ists (only getter) [0, 1]
         if 'ISTS' in modbus_registers:
-            self.logger.info('ISTS can only be read, skipping')
+            self.logger.debug('ISTS can only be read, skipping')
 
         # Iregs (only getter) [0, 65535]
         if 'IREGS' in modbus_registers:
-            self.logger.info('IREGS can only be read, skipping')
+            self.logger.debug('IREGS can only be read, skipping')
+
+        # release ressource
+        self._client_usage_lock.release()
+
+        if any(reg for reg in failed_registers.values()):
+            self.logger.info('Failed register updates: {}'.
+                             format(failed_registers))
+
+        return failed_registers, successfull_registers
 
     def read_coil_registers(self) -> dict:
         """
@@ -558,29 +887,34 @@ class ModbusBridge(object):
             register_address = val['register']
             count = val['len']
 
-            coil_status = self.host.read_coils(
-                slave_addr=slave_addr,
-                starting_addr=register_address,
-                coil_qty=count)
+            try:
+                coil_status = self.host.read_coils(
+                    slave_addr=slave_addr,
+                    starting_addr=register_address,
+                    coil_qty=count)
 
-            if len(coil_status) == 1:
-                # only a single value
-                register_content[key] = {
-                    'register': register_address,
-                    'val': coil_status[0]
-                }
-            else:
-                # convert the tuple to list to be JSON conform
-                register_content[key] = {
-                    'register': register_address,
-                    'val': list(coil_status)
-                }
+                if len(coil_status) == 1:
+                    # only a single value
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': coil_status[0]
+                    }
+                else:
+                    # convert the tuple to list to be JSON conform
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': list(coil_status)
+                    }
 
-            self.logger.info('\t{}\t{}'.format(register_address, coil_status))
+                self.logger.debug('\t{}\t{}'.format(register_address,
+                                                    coil_status))
+            except Exception as e:
+                self.logger.info('Getting COIL {} failed, catched: {}'.
+                                 format(register_address, e))
 
         return register_content
 
-    def write_coil_registers(self, modbus_registers: dict) -> None:
+    def write_coil_registers(self, modbus_registers: dict) -> Tuple[dict, dict]:
         """
         Write all coil registers.
 
@@ -588,15 +922,21 @@ class ModbusBridge(object):
 
         :param      modbus_registers:   The modbus registers
         :type       modbus_registers:   dict
+
+        :returns:   Tuple of failed and successfully updated registers dict
+        :rtype:     Tuple[dict, dict]
         """
         slave_addr = self.client_unit
+        failed_registers = dict()
+        successfull_registers = dict()
 
         for key, val in modbus_registers.items():
             self.logger.debug('\tkey: {}'.format(key))
             self.logger.debug('\t\tval: {}'.format(val))
 
-            register_address = val['register']
+            register_address = key
             register_value = val['val']
+            operation_status = False
 
             # @see lib/uModbus/functions.write_single_coil
             if register_value is True:
@@ -604,15 +944,26 @@ class ModbusBridge(object):
             else:
                 register_value = 0x0000
 
-            operation_status = self.host.write_single_coil(
-                slave_addr=slave_addr,
-                output_address=register_address,
-                output_value=register_value)
+            try:
+                operation_status = self.host.write_single_coil(
+                    slave_addr=slave_addr,
+                    output_address=register_address,
+                    output_value=register_value)
+            except Exception as e:
+                self.logger.info('Setting COIL {} failed, catched: {}'.
+                                 format(register_address, e))
 
             self.logger.debug('Result of setting COIL {} to {}: {}'.
                               format(register_address,
                                      register_value,
                                      operation_status))
+
+            if operation_status:
+                successfull_registers[key] = val
+            else:
+                failed_registers[key] = val
+
+        return failed_registers, successfull_registers
 
     def read_hregs_registers(self) -> dict:
         """
@@ -635,31 +986,35 @@ class ModbusBridge(object):
             register_address = val['register']
             count = val['len']
 
-            register_value = self.host.read_holding_registers(
-                slave_addr=slave_addr,
-                starting_addr=register_address,
-                register_qty=count,
-                signed=signed)
+            try:
+                register_value = self.host.read_holding_registers(
+                    slave_addr=slave_addr,
+                    starting_addr=register_address,
+                    register_qty=count,
+                    signed=signed)
 
-            if len(register_value) == 1:
-                # only a single value
-                register_content[key] = {
-                    'register': register_address,
-                    'val': register_value[0]
-                }
-            else:
-                # convert the tuple to list to be JSON conform
-                register_content[key] = {
-                    'register': register_address,
-                    'val': list(register_value)
-                }
+                if len(register_value) == 1:
+                    # only a single value
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': register_value[0]
+                    }
+                else:
+                    # convert the tuple to list to be JSON conform
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': list(register_value)
+                    }
 
-            self.logger.info('\t{}\t{}'.format(register_address,
-                                               register_value))
+                self.logger.debug('\t{}\t{}'.format(register_address,
+                                                    register_value))
+            except Exception as e:
+                self.logger.info('Getting HREG {} failed, catched: {}'.
+                                 format(register_address, e))
 
         return register_content
 
-    def write_hregs_registers(self, modbus_registers: dict) -> None:
+    def write_hregs_registers(self, modbus_registers: dict) -> Tuple[dict, dict]:
         """
         Write all holding registers.
 
@@ -667,27 +1022,44 @@ class ModbusBridge(object):
 
         :param      modbus_registers:   The modbus registers
         :type       modbus_registers:   dict
+
+        :returns:   Tuple of failed and successfully updated registers dict
+        :rtype:     Tuple[dict, dict]
         """
         slave_addr = self.client_unit
         signed = False
+        failed_registers = dict()
+        successfull_registers = dict()
 
         for key, val in modbus_registers.items():
             self.logger.debug('\tkey: {}'.format(key))
             self.logger.debug('\t\tval: {}'.format(val))
 
-            register_address = val['register']
+            register_address = key
             register_value = val['val']
+            operation_status = False
 
-            operation_status = self.host.write_single_register(
-                slave_addr=slave_addr,
-                output_address=register_address,
-                output_value=register_value,
-                signed=signed)
+            try:
+                operation_status = self.host.write_single_register(
+                    slave_addr=slave_addr,
+                    register_address=register_address,
+                    register_value=register_value,
+                    signed=signed)
+            except Exception as e:
+                self.logger.info('Setting HREG {} failed, catched: {}'.
+                                 format(register_address, e))
 
             self.logger.debug('Result of setting HREGS {} to {}: {}'.
                               format(register_address,
                                      register_value,
                                      operation_status))
+
+            if operation_status:
+                successfull_registers[key] = val
+            else:
+                failed_registers[key] = val
+
+        return failed_registers, successfull_registers
 
     def read_ists_registers(self) -> dict:
         """
@@ -710,26 +1082,30 @@ class ModbusBridge(object):
             register_address = val['register']
             count = val['len']
 
-            input_status = self.host.read_discrete_inputs(
-                slave_addr=slave_addr,
-                starting_addr=register_address,
-                input_qty=count)
+            try:
+                input_status = self.host.read_discrete_inputs(
+                    slave_addr=slave_addr,
+                    starting_addr=register_address,
+                    input_qty=count)
 
-            if len(input_status) == 1:
-                # only a single value
-                register_content[key] = {
-                    'register': register_address,
-                    'val': input_status[0]
-                }
-            else:
-                # convert the tuple to list to be JSON conform
-                register_content[key] = {
-                    'register': register_address,
-                    'val': list(input_status)
-                }
+                if len(input_status) == 1:
+                    # only a single value
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': input_status[0]
+                    }
+                else:
+                    # convert the tuple to list to be JSON conform
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': list(input_status)
+                    }
 
-            self.logger.info('\t{}\t{}'.format(register_address,
-                                               input_status))
+                self.logger.debug('\t{}\t{}'.format(register_address,
+                                                    input_status))
+            except Exception as e:
+                self.logger.info('Setting HREG {} failed, catched: {}'.
+                                 format(register_address, e))
 
         return register_content
 
@@ -754,26 +1130,30 @@ class ModbusBridge(object):
             register_address = val['register']
             count = val['len']
 
-            register_value = self.host.read_input_registers(
-                slave_addr=slave_addr,
-                starting_addr=register_address,
-                register_qty=count,
-                signed=signed)
+            try:
+                register_value = self.host.read_input_registers(
+                    slave_addr=slave_addr,
+                    starting_addr=register_address,
+                    register_qty=count,
+                    signed=signed)
 
-            if len(register_value) == 1:
-                # only a single value
-                register_content[key] = {
-                    'register': register_address,
-                    'val': register_value[0]
-                }
-            else:
-                # convert the tuple to list to be JSON conform
-                register_content[key] = {
-                    'register': register_address,
-                    'val': list(register_value)
-                }
+                if len(register_value) == 1:
+                    # only a single value
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': register_value[0]
+                    }
+                else:
+                    # convert the tuple to list to be JSON conform
+                    register_content[key] = {
+                        'register': register_address,
+                        'val': list(register_value)
+                    }
 
-            self.logger.info('\t{}\t{}'.format(register_address,
-                                               register_value))
+                self.logger.debug('\t{}\t{}'.format(register_address,
+                                                    register_value))
+            except Exception as e:
+                self.logger.info('Getting IREG {} failed, catched: {}'.
+                                 format(register_address, e))
 
         return register_content

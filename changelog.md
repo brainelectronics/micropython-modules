@@ -13,7 +13,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## [Unreleased]
+## [0.2.0] - 2022-02-20
+### Added
+- Modbus data between RTU and TCP can be synchronized continously. Access to
+  client is secured by thread lock ressource.
 
+### Changed
+- Reduce modbus logging output of get and set functions from `INFO` to `DEBUG`
+- Returned dict of `read_all_registers` clusters registers by type instead of
+  register names
+- Tuple of failed and successfully updated registers dict is returned on
+  register write functions instead of dictionary of failed registers only
+- Setting and getting register data is done in try-catch block to avoid errors
+  on unavailable registers or invalid response data
+- Log client register data as JSON instead of dict to improve later logging
+  data usage
+- Default logging level of `ModbusBridge` increased from `DEBUG` to `WARNING`
+
+### Fixed
+- Update host and client unit on setting new connections settings
+- Set logging level `INFO` not `DEBUG` if desired logger level is `info`
+- Return dictionary of read content in `read_all_registers`
+
+## Released
 ## [0.1.0] - 2022-02-19
 ### Added
 - This changelog file
@@ -31,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/0.1.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/0.2.0...develop
 
-
+[0.2.0]: https://github.com/brainelectronics/micropython-modules/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/micropython-modules/tree/0.1.0
