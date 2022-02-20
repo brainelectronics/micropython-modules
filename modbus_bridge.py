@@ -737,28 +737,51 @@ class ModbusBridge(object):
 
         return read_content
 
-    def write_all_registers(self, modbus_registers: dict) -> None:
+    def write_all_registers(self, modbus_registers: dict) -> Tuple[dict, dict]:
         """
         Write all modbus registers (of/to client).
 
         :param      modbus_registers:  The modbus registers
         :type       modbus_registers:  dict
+
+        :returns:   Tuple of failed and successfully updated registers dict
+        :rtype:     Tuple[dict, dict]
         """
+        failed_registers = dict()
+        successfull_registers = dict()
+
+        self.logger.debug('Update registers content: {}'.
+                          format(modbus_registers))
+
         # Coils (setter+getter) [0, 1]
         self.logger.debug('Coils:')
         if 'COILS' in modbus_registers:
-            self.write_coil_registers(
+            failed_coils, successful_coils = self.write_coil_registers(
                 modbus_registers=modbus_registers['COILS']
             )
+            self.logger.debug('failed_coils: {}'.
+                              format(failed_coils))
+
+            if failed_coils:
+                failed_registers['COILS'] = failed_coils
+            if successful_coils:
+                successfull_registers['COILS'] = successful_coils
         else:
             self.logger.debug('No COILS defined, skipping')
 
         # Hregs (setter+getter) [0, 65535]
         self.logger.debug('Hregs:')
         if 'HREGS' in modbus_registers:
-            self.write_hregs_registers(
+            failed_hregs, successful_hregs = self.write_hregs_registers(
                 modbus_registers=modbus_registers['HREGS']
             )
+            self.logger.debug('failed_hregs: {}'.
+                              format(failed_hregs))
+
+            if failed_hregs:
+                failed_registers['HREGS'] = failed_hregs
+            if successful_hregs:
+                successfull_registers['HREGS'] = successful_hregs
         else:
             self.logger.debug('No HREGS defined, skipping')
 
@@ -769,6 +792,11 @@ class ModbusBridge(object):
         # Iregs (only getter) [0, 65535]
         if 'IREGS' in modbus_registers:
             self.logger.debug('IREGS can only be read, skipping')
+
+        self.logger.info('Failed register updates: {}'.
+                         format(failed_registers))
+
+        return failed_registers, successfull_registers
 
     def read_coil_registers(self) -> dict:
         """
@@ -813,7 +841,7 @@ class ModbusBridge(object):
 
         return register_content
 
-    def write_coil_registers(self, modbus_registers: dict) -> None:
+    def write_coil_registers(self, modbus_registers: dict) -> Tuple[dict, dict]:
         """
         Write all coil registers.
 
@@ -821,8 +849,13 @@ class ModbusBridge(object):
 
         :param      modbus_registers:   The modbus registers
         :type       modbus_registers:   dict
+
+        :returns:   Tuple of failed and successfully updated registers dict
+        :rtype:     Tuple[dict, dict]
         """
         slave_addr = self.client_unit
+        failed_registers = dict()
+        successfull_registers = dict()
 
         for key, val in modbus_registers.items():
             self.logger.debug('\tkey: {}'.format(key))
@@ -846,6 +879,13 @@ class ModbusBridge(object):
                               format(register_address,
                                      register_value,
                                      operation_status))
+
+            if operation_status:
+                successfull_registers[key] = val
+            else:
+                failed_registers[key] = val
+
+        return failed_registers, successfull_registers
 
     def read_hregs_registers(self) -> dict:
         """
@@ -892,7 +932,7 @@ class ModbusBridge(object):
 
         return register_content
 
-    def write_hregs_registers(self, modbus_registers: dict) -> None:
+    def write_hregs_registers(self, modbus_registers: dict) -> Tuple[dict, dict]:
         """
         Write all holding registers.
 
@@ -900,9 +940,14 @@ class ModbusBridge(object):
 
         :param      modbus_registers:   The modbus registers
         :type       modbus_registers:   dict
+
+        :returns:   Tuple of failed and successfully updated registers dict
+        :rtype:     Tuple[dict, dict]
         """
         slave_addr = self.client_unit
         signed = False
+        failed_registers = dict()
+        successfull_registers = dict()
 
         for key, val in modbus_registers.items():
             self.logger.debug('\tkey: {}'.format(key))
@@ -921,6 +966,13 @@ class ModbusBridge(object):
                               format(register_address,
                                      register_value,
                                      operation_status))
+
+            if operation_status:
+                successfull_registers[key] = val
+            else:
+                failed_registers[key] = val
+
+        return failed_registers, successfull_registers
 
     def read_ists_registers(self) -> dict:
         """
