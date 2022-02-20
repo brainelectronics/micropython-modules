@@ -10,6 +10,7 @@ Create bridge between RTU and TCP modbus requests
 # system packages
 import gc
 import json
+import machine
 import network
 import _thread
 import time
@@ -73,7 +74,7 @@ class ModbusBridge(object):
         self.provisioning_host_data = False
 
         # data sync specific defined
-        # self._sync_lock = _thread.allocate_lock()
+        self._client_usage_lock = _thread.allocate_lock()
         self._sync_interval = 10  # seconds
 
         # set register file and load its definitions
@@ -741,6 +742,22 @@ class ModbusBridge(object):
         read_content = dict()
         modbus_registers = self.register_definitions
 
+        # lock client ressource
+        self._client_usage_lock.acquire()
+        ressource_acquire_ticks = time.ticks_ms()
+        self.logger.debug('READ: Acquired ressource at {}ms'.
+                          format(ressource_acquire_ticks))
+
+        # idle until ressource is locked
+        while not self._client_usage_lock.locked():
+            machine.idle()
+
+        ressource_granted_ticks = time.ticks_ms()
+        time_diff = time.ticks_diff(ressource_granted_ticks,
+                                    ressource_acquire_ticks)
+        self.logger.debug('READ: Granted ressource after {}ms'.
+                          format(time_diff))
+
         # Coils (setter+getter) [0, 1]
         self.logger.debug('Coils:')
         if 'COILS' in modbus_registers:
@@ -782,6 +799,13 @@ class ModbusBridge(object):
         else:
             self.logger.debug('No IREGS defined, skipping')
 
+        # release ressource
+        self._client_usage_lock.release()
+        time_diff = time.ticks_diff(time.ticks_ms(),
+                                    ressource_granted_ticks)
+        self.logger.debug('READ: Release ressource after (locked for) {}ms'.
+                          format(time_diff))
+
         self.logger.debug('Complete read content: {}'.format(read_content))
 
         return read_content
@@ -801,6 +825,22 @@ class ModbusBridge(object):
 
         self.logger.debug('Update registers content: {}'.
                           format(modbus_registers))
+
+        # lock client ressource
+        self._client_usage_lock.acquire()
+        ressource_acquire_ticks = time.ticks_ms()
+        self.logger.debug('WRITE: Acquired ressource at {}ms'.
+                          format(ressource_acquire_ticks))
+
+        # idle until ressource is locked
+        while not self._client_usage_lock.locked():
+            machine.idle()
+
+        ressource_granted_ticks = time.ticks_ms()
+        time_diff = time.ticks_diff(ressource_granted_ticks,
+                                    ressource_acquire_ticks)
+        self.logger.debug('WRITE: Granted ressource after {}ms'.
+                          format(time_diff))
 
         # Coils (setter+getter) [0, 1]
         self.logger.debug('Coils:')
@@ -841,6 +881,13 @@ class ModbusBridge(object):
         # Iregs (only getter) [0, 65535]
         if 'IREGS' in modbus_registers:
             self.logger.debug('IREGS can only be read, skipping')
+
+        # release ressource
+        self._client_usage_lock.release()
+        time_diff = time.ticks_diff(time.ticks_ms(),
+                                    ressource_granted_ticks)
+        self.logger.info('WRITE: Release ressource after (locked for) {}ms'.
+                         format(time_diff))
 
         self.logger.info('Failed register updates: {}'.
                          format(failed_registers))
