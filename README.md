@@ -25,13 +25,25 @@ description and usage instructions of each module.
  - [WiFi Helper](#wifi-helper)
 
 ## Setup
+### Install package with pip
+
+Connect to a network and install this lib on the MicroPython device like this
+
+```python
+import upip
+upip.install('micropython-brainelectronics-helpers')
+# its dependencies will be installed alongside
+```
+
+### Manually
 
 Copy the module(s) to the MicroPython board and import them as shown below
 using [Remote MicroPython shell][ref-remote-upy-shell]
 
 ```bash
-mkdir /pyboard/helpers
-cp helpers/* /pyboard/helpers
+mkdir /pyboard/lib
+mkdir /pyboard/lib/be_helpers
+cp be_helpers/* /pyboard/lib/be_helpers
 ```
 
 Install required dependencies (requires network connection, see may use the
@@ -40,7 +52,6 @@ Install required dependencies (requires network connection, see may use the
 ```python
 import upip
 upip.install('micropython-ulogging')
-# upip.install('micropython-utarfile')
 ```
 
 ### Generic Helper
@@ -48,7 +59,7 @@ upip.install('micropython-ulogging')
 Generic helper class with different usecases and functions.
 
 ```python
-from helpers.generic_helper import GenericHelper
+from be_helpers import GenericHelper
 
 # get a random value between zero and 100 (inclusive)
 GenericHelper.get_random_value(0, 100)
@@ -108,7 +119,7 @@ This example demonstrates how to interact with the onboard LED on the BE32-01
 The onboard LED is availabe on Pin 4 on the BE32-01 board in inverted mode.
 
 ```python
-from helpers.led_helper import Led
+from be_helpers import Led
 
 # Onboard LED is availabe on Pin 4 on BE32-01 in inverted mode
 led = Led()
@@ -137,7 +148,7 @@ led.flash(amount=5, delay_ms=100)
 Other (LED) pins can be used by specifiying them at the beginning
 
 ```python
-from helpers.led_helper import Led
+from be_helpers import Led
 
 # LED at pin 12 will be active if pin is HIGH
 led = Led(led_pin=12, inverted=False)
@@ -145,7 +156,7 @@ print('LED is ON: {}'.format(led.on))
 ```
 
 ```python
-from helpers.led_helper import Led
+from be_helpers import Led
 
 # Onboard LED is availabe on Pin 4 on BE32-01
 led = Led()
@@ -177,7 +188,7 @@ This example demonstrates how to interact with the Neopixel LED on the BE32-01.
 The one Neopixel LED is availabe on Pin 27 on the BE32-01 board.
 
 ```python
-from helpers.led_helper import Neopixel
+from be_helpers import Neopixel
 
 # Neopixel is by default attached to Pin 27 on BE32-01
 pixel = Neopixel()
@@ -218,7 +229,7 @@ pixel.clear()
 Other Neopixel pin can be used by specifiying them at the beginning
 
 ```python
-from helpers.led_helper import Neopixel
+from be_helpers import Neopixel
 
 # Neopixel at pin 37 will be active if pin is HIGH
 pixel = Neopixel(neopixel_pin=37, neopixels=3)
@@ -226,7 +237,7 @@ print('Neopixel is active: {}'.format(pixel.active))
 ```
 
 ```python
-from helpers.led_helper import Neopixel
+from be_helpers import Neopixel
 
 # Neopixel is by default attached to Pin 27 on BE32-01
 pixel = Neopixel()
@@ -266,7 +277,7 @@ and extended from [SFERALABS Exo Sense Py][ref-sferalabs-exo-sense].
 import time
 import machine
 
-from helpers.modbus_bridge import ModbusBridge
+from be_helpers import ModbusBridge
 
 register_file = 'registers/modbusRegisters-MyEVSE.json'
 rtu_pins = (25, 26)     # (TX, RX)
@@ -329,7 +340,7 @@ MicroPython does not have an `os.path.exists()` function. This small module
 adds this function.
 
 ```python
-from helpers.path_helper import PathHelper
+from be_helpers import PathHelper
 
 path = 'registers/modbusRegisters.json'
 result = PathHelper.exists(path=path)
@@ -339,7 +350,7 @@ print('File at path "{}" does exist: {}'.format(path, result))
 ### Time Helper
 
 ```python
-from helpers.time_helper import TimeHelper
+from be_helpers import TimeHelper
 
 # set the timezone offset to +2, default is +1
 th = TimeHelper(tz=2)
@@ -359,7 +370,7 @@ th.hour
 ### WiFi Helper
 
 ```python
-from helpers.wifi_helper import WifiHelper
+from be_helpers import WifiHelper
 
 # connect to the network 'MyNet' and it's password 'realPassword1'
 result = WifiHelper.connect(ssid='MyNet', password='realPassword1', timedout=3)
@@ -380,6 +391,52 @@ print('SSID of strongest network: {}'.format(strongest_net))
 # convert dBm (RRSI) to quality index in percent
 quality = WifiHelper.dbm_to_quality(dBm=wh.networks[0].RSSI)
 print('Quality of strongest network {}: {}%'.format(strongest_net, quality))
+```
+
+## Create a PyPi (micropython) package
+
+### Setup
+
+Install the required python package with the following command in a virtual
+environment to avoid any conflicts with other packages installed on your local
+system.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install twine
+```
+
+### Create a distribution
+
+This module overrides distutils (also compatible with setuptools) `sdist`
+command to perform pre- and post-processing as required for MicroPython's
+upip package manager. This script is taken from
+[pfalcon's picoweb][ref-pfalcon-picoweb-sdist-upip] and updated to be PEP8
+conform.
+
+```bash
+python setup.py sdist
+```
+
+A new folder `dist` will be created. The [`sdist_upip`](sdist_upip.py) will be
+used to create everything necessary.
+
+### Upload to PyPi
+
+**Be aware: [pypi.org][ref-pypi] and [test.pypi.org][ref-test-pypi] are different**
+
+You can **NOT** login to [test.pypi.org][ref-test-pypi] with the
+[pypi.org][ref-pypi] account unless you created the same on the other. See
+[invalid auth help page of **test** pypi][ref-invalid-auth-test-pypi]
+
+After testing remove the `--repository testpypi` to no longer upload it to
+[test.pypi.org][ref-test-pypi] but [pypi.org][ref-pypi]. Once created releases
+can not be overwritten or replaced with the same version.
+
+```bash
+twine upload dist/micropython-brainelectronics-helpers-*.tar.gz --repository testpypi -u PYPI_USERNAME -p PYPI_PASSWORD
 ```
 
 <!-- Links -->

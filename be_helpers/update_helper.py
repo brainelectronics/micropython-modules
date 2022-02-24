@@ -7,10 +7,6 @@ Perform updates of Micropython code via OTA or in any other way via tar.gz file
 Download file (TBD), uncompress archive and update content on filesystem
 https://github.com/pycom/pycom-libraries/blob/master/examples/OTA/OTA_server.py
 
-Install utarfile with the following commands
->>> import upip
->>> upip.install('micropython-utarfile')
-
 Create tar.gz file with this command
 $ tar -c -b 4 -f tarFileName.tar.gz -v someTarFolder/
 or use create_tar.sh
@@ -27,7 +23,7 @@ Check extracted content:
 
 import os
 import uos
-import utarfile
+import upip_utarfile as utarfile
 import upip
 
 

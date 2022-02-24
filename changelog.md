@@ -12,7 +12,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 -->
 
-## [Unreleased]
+## Released
+## [1.0.0] - 2022-02-24
+### Added
+- [`setup.py`](setup.py) and [`sdist_upip.py`](sdist_upip.py) taken from
+  [pfalcon's picoweb repo][ref-pfalcon-picoweb-sdist-upip] and PEP8 improved
+- [`MIT License`](LICENSE)
+- [`version.py`](be_helpers/version.py) storing current library version
+
+### Changed
+- Moved all helper files into folder named [`be_helpers`](be_helpers)
+- Update [`README`](README.md) usage description of MicroPython lib deploy to
+  [PyPi][ref-pypi]
+- Usage examples in [`README`](README.md) updated with new import path
+- Use `upip_utarfile` instead of external `micropython-utarfile` in
+  [`update_helper.py`](be_helpers/update_helper.py)
+
+### Removed
+- Dependency to `micropython-utarfile` by using built-in `upip_utarfile`
+
 ## [0.2.0] - 2022-02-20
 ### Added
 - Modbus data between RTU and TCP can be synchronized continously. Access to
@@ -35,7 +53,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Set logging level `INFO` not `DEBUG` if desired logger level is `info`
 - Return dictionary of read content in `read_all_registers`
 
-## Released
 ## [0.1.0] - 2022-02-19
 ### Added
 - This changelog file
@@ -53,7 +70,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/0.2.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.0.0...develop
 
+[1.0.0]: https://github.com/brainelectronics/micropython-modules/tree/1.0.0
 [0.2.0]: https://github.com/brainelectronics/micropython-modules/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/micropython-modules/tree/0.1.0
+
+[ref-pypi]: https://pypi.org/
+[ref-pfalcon-picoweb-sdist-upip]: https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/sdist_upip.py
+
