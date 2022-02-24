@@ -9,3 +9,5 @@ from .time_helper import TimeHelper
 from .typing import *
 from .update_helper import UpdateHelper
 from .wifi_helper import WifiHelper
+
+from .version import __version__
