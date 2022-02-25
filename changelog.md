@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.1.0] - 2022-02-25
+### Added
+- [`message.py`](be_helpers/message.py) and [`queue.py`](/queue.py) taken from
+  [peterhinch's micropython async repo][ref-peterhinch-async]
+
 ## [1.0.0] - 2022-02-24
 ### Added
 - [`setup.py`](setup.py) and [`sdist_upip.py`](sdist_upip.py) taken from
@@ -70,12 +75,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.0.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.1.0...develop
 
+[1.1.0]: https://github.com/brainelectronics/micropython-modules/tree/1.1.0
 [1.0.0]: https://github.com/brainelectronics/micropython-modules/tree/1.0.0
 [0.2.0]: https://github.com/brainelectronics/micropython-modules/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/micropython-modules/tree/0.1.0
 
 [ref-pypi]: https://pypi.org/
 [ref-pfalcon-picoweb-sdist-upip]: https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/sdist_upip.py
+[ref-peterhinch-async]: https://github.com/peterhinch/micropython-async/tree/a87bda1b716090da27fd288cc8b19b20525ea20c/v3/primitives
 
