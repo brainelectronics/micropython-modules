@@ -13,8 +13,9 @@ import ulogging as logging
 import os
 import random
 
-# not natively supported on micropython, see typing.py
-from typing import Optional, Union
+# custom packages
+# typing not natively supported on MicroPython
+from .typing import Optional, Union
 
 
 class GenericHelper(object):

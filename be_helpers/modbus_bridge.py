@@ -16,22 +16,19 @@ import _thread
 import time
 
 # pip installed packages
-# import picoweb
-# https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/picoweb/
 from uModbus.serial import Serial as ModbusRTUMaster
 from uModbus.tcp import TCP as ModbusTCPMaster
 # https://github.com/brainelectronics/micropython-modbus/
-from primitives.message import Message
-# https://github.com/peterhinch/micropython-async/blob/a87bda1b716090da27fd288cc8b19b20525ea20c/v3/primitives/
 
 # custom packages
-from helpers.generic_helper import GenericHelper
-from helpers.path_helper import PathHelper
+from .generic_helper import GenericHelper
+from .message import Message
+from .path_helper import PathHelper
+# typing not natively supported on MicroPython
+from .typing import Dict, Tuple, Union
+
 from modbus import ModbusRTU
 from modbus import ModbusTCP
-
-# not natively supported on micropython, see lib/typing.py
-from typing import Dict, Tuple, Union
 
 
 class ModbusBridgeError(Exception):

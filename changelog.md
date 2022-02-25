@@ -13,10 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.1.1] - 2022-02-25
+### Fixed
+- Adopted import paths of `typing` module in all modules from
+ `from typing import *` to `from .typing import *`
+- Do not import any modules in [`__init__.py`](be_helpers/__init__.py) other
+  than [`version.py`](be_helpers/version.py) to avoid issues and gain speed
+
 ## [1.1.0] - 2022-02-25
 ### Added
-- [`message.py`](be_helpers/message.py) and [`queue.py`](/queue.py) taken from
-  [peterhinch's micropython async repo][ref-peterhinch-async]
+- [`message.py`](be_helpers/message.py) and [`queue.py`](be_helpers/queue.py)
+  taken from [peterhinch's micropython async repo][ref-peterhinch-async]
 
 ## [1.0.0] - 2022-02-24
 ### Added
@@ -75,8 +82,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.1.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.1.1...develop
 
+[1.1.1]: https://github.com/brainelectronics/micropython-modules/tree/1.1.1
 [1.1.0]: https://github.com/brainelectronics/micropython-modules/tree/1.1.0
 [1.0.0]: https://github.com/brainelectronics/micropython-modules/tree/1.0.0
 [0.2.0]: https://github.com/brainelectronics/micropython-modules/tree/0.2.0
