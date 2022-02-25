@@ -14,10 +14,10 @@ import network
 import time
 from collections import namedtuple
 
+# custom packages
 from .time_helper import TimeHelper
-
-# not natively supported on micropython, see lib/typing.py
-from typing import (List, NamedTuple, Union)
+# typing not natively supported on MicroPython
+from .typing import List, NamedTuple, Union
 
 
 class WifiHelper(object):

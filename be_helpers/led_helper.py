@@ -12,8 +12,9 @@ import neopixel
 import _thread
 import time
 
-# not natively supported on micropython, see lib/typing.py
-from typing import Union
+# custom packages
+# typing not natively supported on MicroPython
+from .typing import Union
 
 
 class Led(object):
