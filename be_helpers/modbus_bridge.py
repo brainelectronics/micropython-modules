@@ -579,8 +579,8 @@ class ModbusBridge(object):
             self.logger.info('Created TCP client to serve on {}:{}'.
                              format(local_ip, port))
 
-            _client.setup_registers(registers=self.register_definitions,
-                                    use_default_vals=True)
+        _client.setup_registers(registers=self.register_definitions,
+                                use_default_vals=True)
 
         self.host = _host
         self.client = _client
