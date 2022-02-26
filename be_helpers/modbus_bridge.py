@@ -15,20 +15,21 @@ import network
 import _thread
 import time
 
-# pip installed packages
-from uModbus.serial import Serial as ModbusRTUMaster
-from uModbus.tcp import TCP as ModbusTCPMaster
-# https://github.com/brainelectronics/micropython-modbus/
-
 # custom packages
+# pip installed packages
+# https://github.com/brainelectronics/micropython-modules
 from .generic_helper import GenericHelper
 from .message import Message
 from .path_helper import PathHelper
 # typing not natively supported on MicroPython
 from .typing import Dict, Tuple, Union
 
-from modbus import ModbusRTU
-from modbus import ModbusTCP
+# https://github.com/brainelectronics/micropython-modbus/
+# upip.install('micropython-modbus')
+from umodbus.serial import Serial as ModbusRTUMaster
+from umodbus.tcp import TCP as ModbusTCPMaster
+from umodbus.modbus import ModbusRTU
+from umodbus.modbus import ModbusTCP
 
 
 class ModbusBridgeError(Exception):
@@ -578,8 +579,8 @@ class ModbusBridge(object):
             self.logger.info('Created TCP client to serve on {}:{}'.
                              format(local_ip, port))
 
-            _client.setup_registers(registers=self.register_definitions,
-                                    use_default_vals=True)
+        _client.setup_registers(registers=self.register_definitions,
+                                use_default_vals=True)
 
         self.host = _host
         self.client = _client

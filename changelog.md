@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.1.2] - 2022-02-26
+### Fixed
+- Adopted import path of `modbus_bridge` in Modbus Bridge example in
+  [`README`](README.md).
+- Adopted import paths of `umodbus` files in
+  [`modbus_bridge.py`](be_helpers/modbus_bridge.py)
+- Provide installation instructions for `micropython-modbus` library in
+  [`README`](README.md)
+- Call `setup_registers` for either TCP or RTU client, not only in TCP client
+  mode in [`modbus_bridge.py`](be_helpers/modbus_bridge.py)
+
 ## [1.1.1] - 2022-02-25
 ### Fixed
 - Adopted import paths of `typing` module in all modules from
@@ -82,8 +93,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.1.1...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.1.2...develop
 
+[1.1.2]: https://github.com/brainelectronics/micropython-modules/tree/1.1.2
 [1.1.1]: https://github.com/brainelectronics/micropython-modules/tree/1.1.1
 [1.1.0]: https://github.com/brainelectronics/micropython-modules/tree/1.1.0
 [1.0.0]: https://github.com/brainelectronics/micropython-modules/tree/1.0.0

@@ -273,11 +273,18 @@ pixel.color = 'DarlingColor'
 This requires [brainelectronics MicroPython Modbus][ref-be-upy-modbus]. Forked
 and extended from [SFERALABS Exo Sense Py][ref-sferalabs-exo-sense].
 
+Connect the board to a network and install the package like this
+
+```python
+import upip
+upip.install('micropython-modbus')
+```
+
 ```python
 import time
 import machine
 
-from be_helpers import ModbusBridge
+from be_helpers.modbus_bridge import ModbusBridge
 
 register_file = 'registers/modbusRegisters-MyEVSE.json'
 rtu_pins = (25, 26)     # (TX, RX)
