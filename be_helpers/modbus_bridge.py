@@ -15,20 +15,21 @@ import network
 import _thread
 import time
 
-# pip installed packages
-from uModbus.serial import Serial as ModbusRTUMaster
-from uModbus.tcp import TCP as ModbusTCPMaster
-# https://github.com/brainelectronics/micropython-modbus/
-
 # custom packages
+# pip installed packages
+# https://github.com/brainelectronics/micropython-modules
 from .generic_helper import GenericHelper
 from .message import Message
 from .path_helper import PathHelper
 # typing not natively supported on MicroPython
 from .typing import Dict, Tuple, Union
 
-from modbus import ModbusRTU
-from modbus import ModbusTCP
+# https://github.com/brainelectronics/micropython-modbus/
+# upip.install('micropython-modbus')
+from umodbus.serial import Serial as ModbusRTUMaster
+from umodbus.tcp import TCP as ModbusTCPMaster
+from umodbus.modbus import ModbusRTU
+from umodbus.modbus import ModbusTCP
 
 
 class ModbusBridgeError(Exception):
