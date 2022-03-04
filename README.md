@@ -1,5 +1,10 @@
 # MicroPython modules
 
+[![Downloads](https://pepy.tech/badge/micropython-brainelectronics-helpers)](https://pepy.tech/project/micropython-brainelectronics-helpers)
+![Release](https://img.shields.io/github/v/release/brainelectronics/micropython-modules?include_prereleases&color=success)
+![MicroPython](https://img.shields.io/badge/micropython-Ok-green.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Custom brainelectronics MicroPython helpers, modules and wrappers
 
 ---------------
@@ -59,7 +64,7 @@ upip.install('micropython-ulogging')
 Generic helper class with different usecases and functions.
 
 ```python
-from be_helpers import GenericHelper
+from be_helpers.generic_helper import GenericHelper
 
 # get a random value between zero and 100 (inclusive)
 GenericHelper.get_random_value(0, 100)
@@ -119,7 +124,7 @@ This example demonstrates how to interact with the onboard LED on the BE32-01
 The onboard LED is availabe on Pin 4 on the BE32-01 board in inverted mode.
 
 ```python
-from be_helpers import Led
+from be_helpers.led_helper import Led
 
 # Onboard LED is availabe on Pin 4 on BE32-01 in inverted mode
 led = Led()
@@ -148,7 +153,7 @@ led.flash(amount=5, delay_ms=100)
 Other (LED) pins can be used by specifiying them at the beginning
 
 ```python
-from be_helpers import Led
+from be_helpers.led_helper import Led
 
 # LED at pin 12 will be active if pin is HIGH
 led = Led(led_pin=12, inverted=False)
@@ -156,7 +161,7 @@ print('LED is ON: {}'.format(led.on))
 ```
 
 ```python
-from be_helpers import Led
+from be_helpers.led_helper import Led
 
 # Onboard LED is availabe on Pin 4 on BE32-01
 led = Led()
@@ -188,7 +193,7 @@ This example demonstrates how to interact with the Neopixel LED on the BE32-01.
 The one Neopixel LED is availabe on Pin 27 on the BE32-01 board.
 
 ```python
-from be_helpers import Neopixel
+from be_helpers.led_helper import Neopixel
 
 # Neopixel is by default attached to Pin 27 on BE32-01
 pixel = Neopixel()
@@ -229,7 +234,7 @@ pixel.clear()
 Other Neopixel pin can be used by specifiying them at the beginning
 
 ```python
-from be_helpers import Neopixel
+from be_helpers.led_helper import Neopixel
 
 # Neopixel at pin 37 will be active if pin is HIGH
 pixel = Neopixel(neopixel_pin=37, neopixels=3)
@@ -237,7 +242,7 @@ print('Neopixel is active: {}'.format(pixel.active))
 ```
 
 ```python
-from be_helpers import Neopixel
+from be_helpers.led_helper import Neopixel
 
 # Neopixel is by default attached to Pin 27 on BE32-01
 pixel = Neopixel()
@@ -347,7 +352,7 @@ MicroPython does not have an `os.path.exists()` function. This small module
 adds this function.
 
 ```python
-from be_helpers import PathHelper
+from be_helpers.path_helper import PathHelper
 
 path = 'registers/modbusRegisters.json'
 result = PathHelper.exists(path=path)
@@ -357,7 +362,7 @@ print('File at path "{}" does exist: {}'.format(path, result))
 ### Time Helper
 
 ```python
-from be_helpers import TimeHelper
+from be_helpers.time_helper import TimeHelper
 
 # set the timezone offset to +2, default is +1
 th = TimeHelper(tz=2)
@@ -377,7 +382,7 @@ th.hour
 ### WiFi Helper
 
 ```python
-from be_helpers import WifiHelper
+from be_helpers.wifi_helper import WifiHelper
 
 # connect to the network 'MyNet' and it's password 'realPassword1'
 result = WifiHelper.connect(ssid='MyNet', password='realPassword1', timedout=3)
