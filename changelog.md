@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.2.0] - 2022-03-07
+### Fixed
+- Added missing `machine` import to
+  [`generic_helper.py`](be_helpers/generic_helper.py)
+
 ## [1.2.0] - 2022-03-06
 ### Added
 - [`version.py`](be_helpers/version.py) provides info as semver tuple with
@@ -109,8 +114,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.2.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.2.1...develop
 
+[1.2.1]: https://github.com/brainelectronics/micropython-modules/tree/1.2.1
 [1.2.0]: https://github.com/brainelectronics/micropython-modules/tree/1.2.0
 [1.1.2]: https://github.com/brainelectronics/micropython-modules/tree/1.1.2
 [1.1.1]: https://github.com/brainelectronics/micropython-modules/tree/1.1.1
