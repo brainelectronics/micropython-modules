@@ -335,10 +335,6 @@ class ModbusBridge(object):
 
     @property
     def client_data(self) -> Dict[dict]:
-        gc.collect()
-        free = gc.mem_free()
-        self.logger.debug('Free memory: {}'.format(free))
-
         _client_data = self._client_data_msg.value()
         self.logger.debug('Latest client data: {}'.
                           format(json.dumps(_client_data)))

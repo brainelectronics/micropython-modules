@@ -12,6 +12,7 @@ import json
 import ulogging as logging
 import os
 import random
+import time
 
 # custom packages
 # typing not natively supported on MicroPython
@@ -159,6 +160,56 @@ class GenericHelper(object):
                     format(memory_stats['total'] / 1024,
                            memory_stats['free'] / 1024,
                            memory_stats['percentage']))
+
+    @staticmethod
+    def get_system_infos_raw() -> dict:
+        """
+        Get the raw system infos.
+
+        :returns:   The raw system infos.
+        :rtype:     dict
+        """
+        sys_info = dict()
+        memory_info = GenericHelper.get_free_memory()
+
+        sys_info['df'] = GenericHelper.df(path='/', unit='kB')
+        sys_info['free_ram'] = memory_info['free']
+        sys_info['total_ram'] = memory_info['total']
+        sys_info['percentage_ram'] = memory_info['percentage']
+        sys_info['frequency'] = machine.freq()
+        sys_info['uptime'] = time.ticks_ms()
+
+        return sys_info
+
+    @staticmethod
+    def get_system_infos_human() -> dict:
+        """
+        Get the human formatted system infos
+
+        :returns:   The human formatted system infos.
+        :rtype:     dict
+        """
+        sys_info = dict()
+        memory_info = GenericHelper.get_free_memory()
+
+        # (year, month, mday, hour, minute, second, weekday, yearday)
+        # (0,    1,     2,    3,    4,      5,      6,       7)
+        seconds = int(time.ticks_ms() / 1000)
+        uptime = time.gmtime(seconds)
+        days = "{days:01d}".format(days=int(seconds / 86400))
+
+        sys_info['df'] = GenericHelper.df(path='/', unit='kB')
+        sys_info['free_ram'] = "{} kB".format(memory_info['free'] / 1000.0)
+        sys_info['total_ram'] = "{} kB".format(memory_info['total'] / 1000.0)
+        sys_info['percentage_ram'] = memory_info['percentage']
+        sys_info['frequency'] = "{} MHz".format(int(machine.freq() / 1000000))
+        sys_info['uptime'] = "{d} days, {hour:02d}:{min:02d}:{sec:02d}".format(
+                                d=days,
+                                hour=uptime[3],
+                                min=uptime[4],
+                                sec=uptime[5])
+
+        return sys_info
 
     @staticmethod
     def str_to_dict(data: str) -> dict:
