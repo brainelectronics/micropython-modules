@@ -10,6 +10,7 @@ Collection of helper functions for Micropython boards like BE32-01 and others
 import gc
 import json
 import ulogging as logging
+import machine
 import os
 import random
 import time
