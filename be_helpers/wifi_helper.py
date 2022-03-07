@@ -8,11 +8,11 @@ Connect to specified network(s) or create an accesspoint
 """
 
 import ubinascii
+from collections import namedtuple
 import json
 import machine
 import network
 import time
-from collections import namedtuple
 
 # custom packages
 from .time_helper import TimeHelper
