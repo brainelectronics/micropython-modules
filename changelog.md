@@ -13,6 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.2.0] - 2022-03-06
+### Added
+- [`version.py`](be_helpers/version.py) provides info as semver tuple with
+  `__version_info__`
+- Raw and human encoded system info data is provided by function
+  `get_system_infos_raw` and `get_system_infos_human` of
+  [`generic_helper.py`](be_helpers/generic_helper.py)
+
+### Changed
+- `gc.collect()` is no longer called on `client_data` property access of
+  [`modbus_bridge.py`](be_helpers/modbus_bridge.py)
+
+### Fixed
+- Adopted import paths of Generic helper, Led, Neopixel, Path helper, Time
+  helper and WiFi helper examples in [`README`](README.md).
+
 ## [1.1.2] - 2022-02-26
 ### Fixed
 - Adopted import path of `modbus_bridge` in Modbus Bridge example in
@@ -93,8 +109,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.1.2...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.2.0...develop
 
+[1.2.0]: https://github.com/brainelectronics/micropython-modules/tree/1.2.0
 [1.1.2]: https://github.com/brainelectronics/micropython-modules/tree/1.1.2
 [1.1.1]: https://github.com/brainelectronics/micropython-modules/tree/1.1.1
 [1.1.0]: https://github.com/brainelectronics/micropython-modules/tree/1.1.0
