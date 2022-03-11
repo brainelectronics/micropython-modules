@@ -336,8 +336,6 @@ class ModbusBridge(object):
     @property
     def client_data(self) -> Dict[dict]:
         _client_data = self._client_data_msg.value()
-        self.logger.debug('Latest client data: {}'.
-                          format(json.dumps(_client_data)))
 
         # update data only if not empty
         if _client_data:
