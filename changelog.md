@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.2.3] - 2022-03-20
+### Fixed
+- WiFi station is no longer deactivated if no WiFi networks have been found.
+  This might have lead to a disconnection from existing networks, see
+  [#9][ref-issue-4]
+
 ## [1.2.2] - 2022-03-11
 ### Changed
 - Client data is no logger logged with debug level on `client_data` property
@@ -119,8 +125,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.2.2...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.2.3...develop
 
+[1.2.3]: https://github.com/brainelectronics/micropython-modules/tree/1.2.3
 [1.2.2]: https://github.com/brainelectronics/micropython-modules/tree/1.2.2
 [1.2.1]: https://github.com/brainelectronics/micropython-modules/tree/1.2.1
 [1.2.0]: https://github.com/brainelectronics/micropython-modules/tree/1.2.0
@@ -131,6 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/brainelectronics/micropython-modules/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/micropython-modules/tree/0.1.0
 
+[ref-issue-9]: https://github.com/brainelectronics/micropython-modules/issues/9
 [ref-pypi]: https://pypi.org/
 [ref-pfalcon-picoweb-sdist-upip]: https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/sdist_upip.py
 [ref-peterhinch-async]: https://github.com/peterhinch/micropython-async/tree/a87bda1b716090da27fd288cc8b19b20525ea20c/v3/primitives
