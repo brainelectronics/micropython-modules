@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - WiFi station is no longer deactivated if no WiFi networks have been found.
   This might have lead to a disconnection from existing networks, see
-  [#9][ref-issue-4]
+  [#9][ref-issue-11]
 
 ## [1.2.2] - 2022-03-11
 ### Changed
