@@ -327,8 +327,9 @@ class WifiHelper(object):
         found_networks = list()
         try:
             found_networks = station.scan()
-            if not len(found_networks):
-                station.active(False)
+            # avoid disconnection from connected network, see #9
+            # if not len(found_networks):
+            #     station.active(False)
         except RuntimeError:
             print('RuntimeError during scan')
             # no access points were found.
