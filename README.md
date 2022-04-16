@@ -78,6 +78,12 @@ GenericHelper.df(path='/', unit='kb')
 GenericHelper.get_free_memory()
 # >>> {'percentage': '99.76%', 'total': 4098240, 'free': 4088400}
 
+# get UUID of default length, might be different on PyCOM, MicroPython, ...
+GenericHelper.get_uuid()
+# >>> b'308398d9eefc'
+# GenericHelper.get_uuid(length=18)
+# >>> b'308398d9eefc308398'
+
 # get detailed info (full == True) RAM informations
 GenericHelper.free(full=True)
 # >>> 'Total: 4006.1 kB, Free: 3992.56 kB (99.76%)'
