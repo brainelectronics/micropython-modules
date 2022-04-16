@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.3.0] - 2022-04-16
+### Added
+- `get_uuid` can be used to get the unique ID of the device or with an optional
+  parameter `lenght` to return the UUID of desired length, see
+  [#11][ref-issue-11]
+
 ## [1.2.3] - 2022-03-20
 ### Fixed
 - WiFi station is no longer deactivated if no WiFi networks have been found.
@@ -125,8 +131,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.2.3...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.3.0...develop
 
+[1.3.0]: https://github.com/brainelectronics/micropython-modules/tree/1.3.0
 [1.2.3]: https://github.com/brainelectronics/micropython-modules/tree/1.2.3
 [1.2.2]: https://github.com/brainelectronics/micropython-modules/tree/1.2.2
 [1.2.1]: https://github.com/brainelectronics/micropython-modules/tree/1.2.1
@@ -138,6 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/brainelectronics/micropython-modules/tree/0.2.0
 [0.1.0]: https://github.com/brainelectronics/micropython-modules/tree/0.1.0
 
+[ref-issue-11]: https://github.com/brainelectronics/micropython-modules/issues/11
 [ref-issue-9]: https://github.com/brainelectronics/micropython-modules/issues/9
 [ref-pypi]: https://pypi.org/
 [ref-pfalcon-picoweb-sdist-upip]: https://github.com/pfalcon/picoweb/blob/b74428ebdde97ed1795338c13a3bdf05d71366a0/sdist_upip.py

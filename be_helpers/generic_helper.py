@@ -14,6 +14,7 @@ import machine
 import os
 import random
 import time
+import ubinascii
 
 # custom packages
 # typing not natively supported on MicroPython
@@ -85,6 +86,27 @@ class GenericHelper(object):
         :rtype:     int
         """
         return random.randint(lower, upper)
+
+    @staticmethod
+    def get_uuid(length: Optional[int] = None) -> bytes:
+        """
+        Get the UUID of the device.
+
+        :param      length:  The length of the UUID
+        :type       length:  int, optional
+
+        :returns:   The uuid.
+        :rtype:     bytes
+        """
+        uuid = ubinascii.hexlify(machine.unique_id())
+
+        if length:
+            uuid_len = len(uuid)
+            amount = length // uuid_len + (length % uuid_len > 0)
+
+            return (uuid * amount)[:length]
+        else:
+            return uuid
 
     @staticmethod
     def df(path: str = '//', unit: Optional[str] = None) -> Union[int, str]:
