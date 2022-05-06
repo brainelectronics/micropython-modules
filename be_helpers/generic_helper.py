@@ -100,11 +100,14 @@ class GenericHelper(object):
         """
         uuid = ubinascii.hexlify(machine.unique_id())
 
-        if length:
+        if length is not None:
             uuid_len = len(uuid)
-            amount = length // uuid_len + (length % uuid_len > 0)
+            amount = abs(length) // uuid_len + (abs(length) % uuid_len > 0)
 
-            return (uuid * amount)[:length]
+            if length < 0:
+                return (uuid * amount)[length:]
+            else:
+                return (uuid * amount)[:length]
         else:
             return uuid
 
