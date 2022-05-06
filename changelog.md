@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.4.0] - 2022-05-06
+### Changed
+- `get_uuid` can be used to get the first or last n characters of the unique
+  ID of the device, see additional comment in [#11][ref-issue-11]
+
 ## [1.3.0] - 2022-04-16
 ### Added
 - `get_uuid` can be used to get the unique ID of the device or with an optional
@@ -131,8 +136,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.3.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.4.0...develop
 
+[1.4.0]: https://github.com/brainelectronics/micropython-modules/tree/1.4.0
 [1.3.0]: https://github.com/brainelectronics/micropython-modules/tree/1.3.0
 [1.2.3]: https://github.com/brainelectronics/micropython-modules/tree/1.2.3
 [1.2.2]: https://github.com/brainelectronics/micropython-modules/tree/1.2.2
