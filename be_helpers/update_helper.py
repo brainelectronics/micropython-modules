@@ -21,6 +21,7 @@ Check extracted content:
 >>>     print(f.read())
 """
 
+import errno
 import os
 import uos
 import upip_utarfile as utarfile
