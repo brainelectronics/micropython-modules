@@ -230,10 +230,10 @@ class GenericHelper(object):
         sys_info['percentage_ram'] = memory_info['percentage']
         sys_info['frequency'] = "{} MHz".format(int(machine.freq() / 1000000))
         sys_info['uptime'] = "{d} days, {hour:02d}:{min:02d}:{sec:02d}".format(
-                                d=days,
-                                hour=uptime[3],
-                                min=uptime[4],
-                                sec=uptime[5])
+            d=days,
+            hour=uptime[3],
+            min=uptime[4],
+            sec=uptime[5])
 
         return sys_info
 
