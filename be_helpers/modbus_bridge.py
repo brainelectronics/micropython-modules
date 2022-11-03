@@ -9,7 +9,6 @@ Create bridge between RTU and TCP modbus requests
 
 # system packages
 import gc
-import json
 import machine
 import network
 import _thread
