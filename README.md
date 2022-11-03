@@ -4,6 +4,7 @@
 ![Release](https://img.shields.io/github/v/release/brainelectronics/micropython-modules?include_prereleases&color=success)
 ![MicroPython](https://img.shields.io/badge/micropython-Ok-green.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/brainelectronics/micropython-brainelectronics-helpers/actions/workflows/release.yml/badge.svg)](https://github.com/brainelectronics/micropython-brainelectronics-helpers/actions/workflows/release.yml)
 
 Custom brainelectronics MicroPython helpers, modules and wrappers
 
@@ -14,25 +15,70 @@ Custom brainelectronics MicroPython helpers, modules and wrappers
 This is a collection of MicroPython modules required for the BE32-01 and other
 brainelectronics projects.
 
+<!-- MarkdownTOC -->
+
+- [Available generators](#available-generators)
+- [Installation](#installation)
+    - [Install required tools](#install-required-tools)
+- [Setup](#setup)
+    - [Install package with pip](#install-package-with-pip)
+    - [Manually](#manually)
+    - [Generic Helper](#generic-helper)
+    - [LED Helper](#led-helper)
+        - [Onboard LED](#onboard-led)
+            - [Basics](#basics)
+            - [Advanced](#advanced)
+        - [Neopixel](#neopixel)
+            - [Basics](#basics-1)
+            - [Advanced](#advanced-1)
+    - [Modbus Bridge](#modbus-bridge)
+    - [Path Helper](#path-helper)
+    - [Time Helper](#time-helper)
+    - [WiFi Helper](#wifi-helper)
+
+<!-- /MarkdownTOC -->
+
 ## Available generators
 
 For the individual usage of a helper, module or wrapper read the brief
 description and usage instructions of each module.
 
-<!-- TOC -->
- - [Generic Helper](#generic-helper)
- - [LED Helper](#led-helper)
-     - [Onboard LED](#onboard-led)
-     - [Neopixel](#neopixel)
- - [Modbus TCP-RTU bridge](#modbus-bridge)
- - [Path Helper](#path-helper)
- - [Time Helper](#time-helper)
- - [WiFi Helper](#wifi-helper)
+## Installation
+
+### Install required tools
+
+Python3 must be installed on your system. Check the current Python version
+with the following command
+
+```bash
+python --version
+python3 --version
+```
+
+Depending on which command `Python 3.x.y` (with x.y as some numbers) is
+returned, use that command to proceed.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -r requirements.txt
+```
 
 ## Setup
+
 ### Install package with pip
 
-Connect to a network and install this lib on the MicroPython device like this
+Connect your MicroPython board to a network
+
+```python
+import network
+station = network.WLAN(network.STA_IF)
+station.connect('SSID', 'PASSWORD')
+station.isconnected()
+```
+
+and install this lib on the MicroPython device like this
 
 ```python
 import upip
@@ -42,8 +88,17 @@ upip.install('micropython-brainelectronics-helpers')
 
 ### Manually
 
-Copy the module(s) to the MicroPython board and import them as shown below
+Copy the module to the MicroPython board and import them as shown below
 using [Remote MicroPython shell][ref-remote-upy-shell]
+
+Open the remote shell with the following command. Additionally use `-b 115200`
+in case no CP210x is used but a CH34x.
+
+```bash
+rshell -p /dev/tty.SLAB_USBtoUART --editor nano
+```
+
+Perform the following command to copy all files and folders to the device
 
 ```bash
 mkdir /pyboard/lib
@@ -409,52 +464,6 @@ print('SSID of strongest network: {}'.format(strongest_net))
 # convert dBm (RRSI) to quality index in percent
 quality = WifiHelper.dbm_to_quality(dBm=wh.networks[0].RSSI)
 print('Quality of strongest network {}: {}%'.format(strongest_net, quality))
-```
-
-## Create a PyPi (micropython) package
-
-### Setup
-
-Install the required python package with the following command in a virtual
-environment to avoid any conflicts with other packages installed on your local
-system.
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-
-pip install twine
-```
-
-### Create a distribution
-
-This module overrides distutils (also compatible with setuptools) `sdist`
-command to perform pre- and post-processing as required for MicroPython's
-upip package manager. This script is taken from
-[pfalcon's picoweb][ref-pfalcon-picoweb-sdist-upip] and updated to be PEP8
-conform.
-
-```bash
-python setup.py sdist
-```
-
-A new folder `dist` will be created. The [`sdist_upip`](sdist_upip.py) will be
-used to create everything necessary.
-
-### Upload to PyPi
-
-**Be aware: [pypi.org][ref-pypi] and [test.pypi.org][ref-test-pypi] are different**
-
-You can **NOT** login to [test.pypi.org][ref-test-pypi] with the
-[pypi.org][ref-pypi] account unless you created the same on the other. See
-[invalid auth help page of **test** pypi][ref-invalid-auth-test-pypi]
-
-After testing remove the `--repository testpypi` to no longer upload it to
-[test.pypi.org][ref-test-pypi] but [pypi.org][ref-pypi]. Once created releases
-can not be overwritten or replaced with the same version.
-
-```bash
-twine upload dist/micropython-brainelectronics-helpers-*.tar.gz --repository testpypi -u PYPI_USERNAME -p PYPI_PASSWORD
 ```
 
 <!-- Links -->
