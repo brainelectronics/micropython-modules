@@ -9,7 +9,6 @@ Create bridge between RTU and TCP modbus requests
 
 # system packages
 import gc
-import json
 import machine
 import network
 import _thread
@@ -42,7 +41,8 @@ class ModbusBridge(object):
     def __init__(self, register_file: str, logger=None, quiet: bool = False):
         # setup and configure logger if none is provided
         if logger is None:
-            logger = GenericHelper.create_logger(logger_name=self.__class__.__name__)
+            logger = GenericHelper.create_logger(
+                logger_name=self.__class__.__name__)
             GenericHelper.set_level(logger, 'warning')
         self.logger = logger
         self.logger.disabled = quiet
@@ -416,7 +416,8 @@ class ModbusBridge(object):
                     if connection_type == 'rtu':
                         if 'baudrate' not in all_regs[config_keyword]:
                             # baudrate is required for RTU connections
-                            raise ModbusBridgeError('Missing "baudrate" key in connection config')
+                            raise ModbusBridgeError(
+                                'Missing "baudrate" key in connection config')
                     elif connection_type == 'tcp':
                         pass
                     else:
@@ -443,7 +444,8 @@ class ModbusBridge(object):
                         raise ModbusBridgeError('Unknown connection mode: {}'.
                                                 format(connection_mode))
                 else:
-                    missing_keys = set(connection_config.keys()) - set(required_keys)
+                    missing_keys = (set(connection_config.keys()) -
+                                    set(required_keys))
                     self.logger.warning('Missing connection keys: {}'.
                                         format(missing_keys))
             else:
@@ -587,7 +589,10 @@ class ModbusBridge(object):
                                  address=local_ip,
                                  port=_host_cfg['unit']))
 
-    def _collect_client_data(self, msg: Message, interval: int, lock: int) -> None:
+    def _collect_client_data(self,
+                             msg: Message,
+                             interval: int,
+                             lock: int) -> None:
         """
         Collect client Modbus data
 
@@ -906,7 +911,8 @@ class ModbusBridge(object):
 
         return register_content
 
-    def write_coil_registers(self, modbus_registers: dict) -> Tuple[dict, dict]:
+    def write_coil_registers(self,
+                             modbus_registers: dict) -> Tuple[dict, dict]:
         """
         Write all coil registers.
 
@@ -1006,7 +1012,8 @@ class ModbusBridge(object):
 
         return register_content
 
-    def write_hregs_registers(self, modbus_registers: dict) -> Tuple[dict, dict]:
+    def write_hregs_registers(self,
+                              modbus_registers: dict) -> Tuple[dict, dict]:
         """
         Write all holding registers.
 

@@ -25,7 +25,7 @@ class Led(object):
 
         :param      led_pin:   The LED pin
         :type       led_pin:   int, optional
-        :param      inverted:  Flag whether LED is inverted (soldered from Vcc to pin)
+        :param      inverted:  Flag whether LED is inverted
         :type       inverted:  bool, optional
         """
         self.led_pin = Pin(led_pin, Pin.OUT)
@@ -55,7 +55,7 @@ class Led(object):
         self.blink_delay = delay_ms
         self.blinking = True
 
-    def _blink(self, delay_ms: int, lock: lock) -> None:
+    def _blink(self, delay_ms: int, lock: lock) -> None:    # noqa
         """
         Internal blink thread content.
 
@@ -240,7 +240,10 @@ class Neopixel(object):
             'teal': [0, 30 // 2, 30 // 2],
             'purple': [30 // 2, 0, 30 // 2],
         }
-        self._pwmtable = [0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 10, 11, 13, 16, 19, 23, 27, 32, 38, 45, 54, 64, 76, 91, 108, 128, 152, 181, 215, 255]
+        self._pwmtable = [
+            0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 10, 11, 13, 16, 19, 23, 27, 32,
+            38, 45, 54, 64, 76, 91, 108, 128, 152, 181, 215, 255
+        ]
         self._color = self._colors['red']
         self._intensity = max(self._color)
         self._last_intensity = self._intensity
@@ -270,7 +273,7 @@ class Neopixel(object):
         """
         Set the neopixel color.
 
-        A RGB value can be specified by a list or by setting the individual color.
+        A RGB value can be specified by a list or by setting individual color.
 
         :param      red:    The red brightness
         :type       red:    int, optional
@@ -328,7 +331,9 @@ class Neopixel(object):
         """
         self.set(red=intensity, number=number)
 
-    def green(self, intensity: int = 30, number: Union[int, list] = -1) -> None:
+    def green(self,
+              intensity: int = 30,
+              number: Union[int, list] = -1) -> None:
         """
         Set the Neopixel to green.
 
@@ -497,22 +502,24 @@ class Neopixel(object):
         A fade delay below 30ms is not recommened due to high CPU load.
         REPL might get slow.
 
-        :param      delay_ms:       The delay between intensity changes in milliseconds
+        :param      delay_ms:       Delay between intensity changes in ms
         :type       delay_ms:       int
-        :param      pixel_amount:   Which or how many Neopixel to fade, default is all
+        :param      pixel_amount:   Which or how many Neopixel to fade,
+                                    default is all
         :type       pixel_amount:   int, optional
         """
         self.fade_delay = delay_ms
         self.fade_pixel_amount = pixel_amount
         self.fading = True
 
-    def _fade(self, delay_ms: int, pixel_amount: int, lock: lock) -> None:
+    def _fade(self, delay_ms: int, pixel_amount: int, lock: lock) -> None:  # noqa
         """
         Internal Neopixel fading thread content.
 
-        :param      delay_ms:       The delay between intensity changes in milliseconds
+        :param      delay_ms:       The delay between intensity changes in ms
         :type       delay_ms:       int
-        :param      pixel_amount:   Which or how many Neopixel to fade, default is all
+        :param      pixel_amount:   Which or how many Neopixel to fade,
+                                    default is all
         :type       pixel_amount:   int, optional
         :param      lock:           The lock object
         :type       lock:           lock
@@ -522,7 +529,8 @@ class Neopixel(object):
 
         # find closest match of maximum_intensity in _pwmtable
         # set this as maximum_intensity
-        closest_match = min(self._pwmtable, key=lambda x: abs(x - maximum_intensity))
+        closest_match = min(self._pwmtable,
+                            key=lambda x: abs(x - maximum_intensity))
         closest_match_index = self._pwmtable.index(closest_match)
 
         while lock.locked():
@@ -558,7 +566,7 @@ class Neopixel(object):
         """
         Set the Neopixel fade delay in milliseconds.
 
-        :param      delay_ms:  The delay between intensity changes in milliseconds
+        :param      delay_ms:  The delay between intensity changes in ms
         :type       delay_ms:  int
         """
         if delay_ms < 1:
