@@ -51,14 +51,14 @@ class TimeHelper(object):
             timezone = self._timezone
 
         tm = time.localtime()
-        tm = (tm[0], tm[1], tm[2], tm[3] + timezone, tm[4], tm[5], tm[6], tm[7])
+        tm = (tm[0], tm[1], tm[2], tm[3] + timezone, tm[4], tm[5], tm[6], tm[7])    # noqa
         print("Local time after synchronization: {}".format(tm))
         # Local time after synchronization: (2021, 7, 15, 19, 12, 25, 1, 196)
         # (2021, 7, 15, 19, 12,  25,       1, 196)
         # (year, m, day, h, min,sec, weekday, yearday)
         # (0,    1,  2,  3,  4,   5,       6, 7)
 
-        #               year, month, day, weekday, hours, minutes, seconds, subsec
+        # year, month, day, weekday, hours, minutes, seconds, subsec
         self.rtc.init((tm[0], tm[1], tm[2], tm[6], tm[3], tm[4], tm[5], 0))
 
     @property
@@ -175,13 +175,14 @@ class TimeHelper(object):
         :rtype:     str
         """
         now = self.current_timestamp
-        return ('{hour:02d}:{minute:02d}:{sec:02d} {year}-{month:02d}-{day:02d}'.
-                format(hour=now[3],
-                       minute=now[4],
-                       sec=now[5],
-                       year=now[0],
-                       month=now[1],
-                       day=now[2]))
+        return (
+            '{hour:02d}:{minute:02d}:{sec:02d} {year}-{month:02d}-{day:02d}'.
+            format(hour=now[3],
+                   minute=now[4],
+                   sec=now[5],
+                   year=now[0],
+                   month=now[1],
+                   day=now[2]))
 
     @property
     def current_timestamp_human(self) -> str:
