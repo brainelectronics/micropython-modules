@@ -74,6 +74,7 @@ Connect your MicroPython board to a network
 ```python
 import network
 station = network.WLAN(network.STA_IF)
+station.active(True)
 station.connect('SSID', 'PASSWORD')
 station.isconnected()
 ```
