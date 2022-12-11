@@ -38,6 +38,7 @@ class TimeHelper(object):
         tm = time.localtime()
         print("Local time before synchronization: {}".format(tm))
         # Local time before synchronization: (2000, 1, 1, 0, 9, 44, 5, 1)
+        #                                    (y, m, d, h, min, sec, wd, yd)
 
         # sync time with NTP server
         try:
@@ -58,8 +59,10 @@ class TimeHelper(object):
         # (year, m, day, h, min,sec, weekday, yearday)
         # (0,    1,  2,  3,  4,   5,       6, 7)
 
-        # year, month, day, weekday, hours, minutes, seconds, subsec
-        self.rtc.init((tm[0], tm[1], tm[2], tm[6], tm[3], tm[4], tm[5], 0))
+        #    year, month, day, hour, minute, second, subsec, tzinfo
+        self.rtc.init(
+            (tm[0], tm[1], tm[2], tm[3], tm[4], tm[5], 0, self.timezone)
+        )
 
     @property
     def timezone(self) -> int:
@@ -89,8 +92,8 @@ class TimeHelper(object):
         :returns:   This year
         :rtype:     int
         """
-        # (y,    m,  d,  h,  m,  s, subseconds)
-        # (self.2021, 7, 15, 19, 12, 25, 1, 196)
+        # (y,    m,  d, wd, h, m,  s, subseconds)
+        # (2021, 7, 15, 5, 19, 12, 25, 1, 196)
         return self.rtc.datetime()[0]
 
     @property
@@ -101,8 +104,8 @@ class TimeHelper(object):
         :returns:   This month
         :rtype:     int
         """
-        # (y,    m,  d,  h,  m,  s, subseconds)
-        # (2021, 7, 15, 19, 12, 25, 1, 196)
+        # (y,    m,  d, wd, h, m,  s, subseconds)
+        # (2021, 7, 15, 5, 19, 12, 25, 1, 196)
         return self.rtc.datetime()[1]
 
     @property
@@ -113,8 +116,8 @@ class TimeHelper(object):
         :returns:   This day
         :rtype:     int
         """
-        # (y,    m,  d,  h,  m,  s, subseconds)
-        # (2021, 7, 15, 19, 12, 25, 1, 196)
+        # (y,    m,  d, wd, h, m,  s, subseconds)
+        # (2021, 7, 15, 5, 19, 12, 25, 1, 196)
         return self.rtc.datetime()[2]
 
     @property
@@ -125,8 +128,8 @@ class TimeHelper(object):
         :returns:   This hour
         :rtype:     int
         """
-        # (y,    m,  d,  h,  m,  s, subseconds)
-        # (2021, 7, 15, 19, 12, 25, 1, 196)
+        # (y,    m,  d, wd, h, m,  s, subseconds)
+        # (2021, 7, 15, 5, 19, 12, 25, 1, 196)
         return self.rtc.datetime()[4]
 
     @property
@@ -137,8 +140,8 @@ class TimeHelper(object):
         :returns:   This minute
         :rtype:     int
         """
-        # (y,    m,  d,  h,  m,  s, subseconds)
-        # (2021, 7, 15, 19, 12, 25, 1, 196)
+        # (y,    m,  d, wd, h, m,  s, subseconds)
+        # (2021, 7, 15, 5, 19, 12, 25, 1, 196)
         return self.rtc.datetime()[5]
 
     @property
@@ -149,8 +152,8 @@ class TimeHelper(object):
         :returns:   This second
         :rtype:     int
         """
-        # (y,    m,  d,  h,  m,  s, subseconds)
-        # (2021, 7, 15, 19, 12, 25, 1, 196)
+        # (y,    m,  d, wd, h, m,  s, subseconds)
+        # (2021, 7, 15, 5, 19, 12, 25, 1, 196)
         return self.rtc.datetime()[6]
 
     @property
