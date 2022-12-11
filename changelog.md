@@ -13,6 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.6.0] - 2022-12-11
+### Added
+- Use [changelog-based-release action](https://github.com/brainelectronics/changelog-based-release) to create a draft release with every merge to develop
+- Use [changelog-based-release action](https://github.com/brainelectronics/changelog-based-release) to create a drafted prerelease release with every PR build
+
+### Changed
+- Apply changes for [micropython-modbus 2.0.0](https://github.com/brainelectronics/micropython-modbus/pull/33), see #16
+- Scope of contents permissions in release and test release workflow is now `write` to use auto release creation
+- Use `checkout@v3` instead of `checkout@v2` in all workflows
+- Line breaks are no longer used in this changelog for enumerations
+- Issues are referenced as `#123` instead of `[#123][ref-issue-123]` to avoid explicit references at the bottom or some other location in the file
+
+### Fixed
+- Use more specific `noqa` in [`led_helper.py`](be_helpers/led_helper.py)
+
 ## [1.5.0] - 2022-11-03
 ### Added
 - Deploy to [Test Python Package Index](https://test.pypi.org/) on every PR
@@ -153,8 +168,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.5.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.6.0...develop
 
+[1.6.0]: https://github.com/brainelectronics/micropython-modules/tree/1.6.0
 [1.5.0]: https://github.com/brainelectronics/micropython-modules/tree/1.5.0
 [1.4.0]: https://github.com/brainelectronics/micropython-modules/tree/1.4.0
 [1.3.0]: https://github.com/brainelectronics/micropython-modules/tree/1.3.0
