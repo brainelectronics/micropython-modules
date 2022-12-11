@@ -121,6 +121,18 @@ class TimeHelper(object):
         return self.rtc.datetime()[2]
 
     @property
+    def weekday(self) -> int:
+        """
+        Current weekday from RTC
+
+        :returns:   This weekday
+        :rtype:     int
+        """
+        # (y,    m,  d, wd, h, m,  s, subseconds)
+        # (2021, 7, 15, 5, 19, 12, 25, 1, 196)
+        return self.rtc.datetime()[3]
+
+    @property
     def hour(self) -> int:
         """
         Current hour from RTC
