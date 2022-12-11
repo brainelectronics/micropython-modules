@@ -55,7 +55,7 @@ class Led(object):
         self.blink_delay = delay_ms
         self.blinking = True
 
-    def _blink(self, delay_ms: int, lock: lock) -> None:    # noqa
+    def _blink(self, delay_ms: int, lock: lock) -> None:    # noqa: F821
         """
         Internal blink thread content.
 
