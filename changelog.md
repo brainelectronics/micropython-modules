@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.6.1] - 2023-01-29
+### Fixed
+- Typing hints for `Callable`, `Dict`, `List`, `Optional`, `Tuple` and `Union` are now subscriptable
+
 ## [1.6.0] - 2022-12-11
 ### Added
 - Use [changelog-based-release action](https://github.com/brainelectronics/changelog-based-release) to create a draft release with every merge to develop
@@ -168,8 +172,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.6.0...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.6.1...develop
 
+[1.6.1]: https://github.com/brainelectronics/micropython-modules/tree/1.6.1
 [1.6.0]: https://github.com/brainelectronics/micropython-modules/tree/1.6.0
 [1.5.0]: https://github.com/brainelectronics/micropython-modules/tree/1.5.0
 [1.4.0]: https://github.com/brainelectronics/micropython-modules/tree/1.4.0
