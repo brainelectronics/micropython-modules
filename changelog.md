@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 ## Released
+## [1.7.0] - 2023-05-27
+### Added
+- `ulogging` is part of `be_helpers` to be independent from other packages, see #20
+- `package.json` file and installation instruction for `mip` usage, see #21
+- Content of `package.json` is validated on each test workflow run
+
+### Removed
+- Dependency to `micropython-ulogging` package in `setup.py` file
+
+### Fixed
+- YAML syntax in all workflow files
+
 ## [1.6.1] - 2023-01-29
 ### Fixed
 - Typing hints for `Callable`, `Dict`, `List`, `Optional`, `Tuple` and `Union` are now subscriptable
@@ -172,8 +184,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`WifiHelper`](wifi_helper.py) module converted into class
 
 <!-- Links -->
-[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.6.1...develop
+[Unreleased]: https://github.com/brainelectronics/micropython-modules/compare/1.7.0...develop
 
+[1.7.0]: https://github.com/brainelectronics/micropython-modules/tree/1.7.0
 [1.6.1]: https://github.com/brainelectronics/micropython-modules/tree/1.6.1
 [1.6.0]: https://github.com/brainelectronics/micropython-modules/tree/1.6.0
 [1.5.0]: https://github.com/brainelectronics/micropython-modules/tree/1.5.0

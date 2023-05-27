@@ -1,0 +1,58 @@
+{
+    "urls": [
+        [
+            "be_helpers/__init__.py",
+            "github:brainelectronics/micropython-modules/be_helpers/__init__.py"
+        ],
+        [
+            "be_helpers/generic_helper.py",
+            "github:brainelectronics/micropython-modules/be_helpers/generic_helper.py"
+        ],
+        [
+            "be_helpers/led_helper.py",
+            "github:brainelectronics/micropython-modules/be_helpers/led_helper.py"
+        ],
+        [
+            "be_helpers/message.py",
+            "github:brainelectronics/micropython-modules/be_helpers/message.py"
+        ],
+        [
+            "be_helpers/modbus_bridge.py",
+            "github:brainelectronics/micropython-modules/be_helpers/modbus_bridge.py"
+        ],
+        [
+            "be_helpers/path_helper.py",
+            "github:brainelectronics/micropython-modules/be_helpers/path_helper.py"
+        ],
+        [
+            "be_helpers/queue.py",
+            "github:brainelectronics/micropython-modules/be_helpers/queue.py"
+        ],
+        [
+            "be_helpers/time_helper.py",
+            "github:brainelectronics/micropython-modules/be_helpers/time_helper.py"
+        ],
+        [
+            "be_helpers/typing.py",
+            "github:brainelectronics/micropython-modules/be_helpers/typing.py"
+        ],
+        [
+            "be_helpers/ulogging.py",
+            "github:brainelectronics/micropython-modules/be_helpers/ulogging.py"
+        ],
+        [
+            "be_helpers/update_helper.py",
+            "github:brainelectronics/micropython-modules/be_helpers/update_helper.py"
+        ],
+        [
+            "be_helpers/version.py",
+            "github:brainelectronics/micropython-modules/be_helpers/version.py"
+        ],
+        [
+            "be_helpers/wifi_helper.py",
+            "github:brainelectronics/micropython-modules/be_helpers/wifi_helper.py"
+        ]
+    ],
+    "deps": [],
+    "version": "1.7.0"
+}
