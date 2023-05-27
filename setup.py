@@ -26,6 +26,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: Implementation :: MicroPython',
     ],
     keywords='micropython, brainelectronics, modules, library',
     project_urls={
@@ -35,5 +36,5 @@ setup(
     license='MIT',
     cmdclass={'sdist': sdist_upip.sdist},
     packages=['be_helpers'],
-    install_requires=['micropython-ulogging']
+    install_requires=[]
 )

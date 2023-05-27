@@ -9,7 +9,6 @@ Collection of helper functions for Micropython boards like BE32-01 and others
 
 import gc
 import json
-import ulogging as logging
 import machine
 import os
 import random
@@ -19,6 +18,7 @@ import ubinascii
 # custom packages
 # typing not natively supported on MicroPython
 from .typing import Optional, Union
+from . import ulogging as logging
 
 
 class GenericHelper(object):
