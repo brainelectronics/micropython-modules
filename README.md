@@ -21,7 +21,10 @@ brainelectronics projects.
 - [Installation](#installation)
     - [Install required tools](#install-required-tools)
 - [Setup](#setup)
-    - [Install package with pip](#install-package-with-pip)
+    - [Install package](#install-package)
+        - [General](#general)
+        - [Specific version](#specific-version)
+        - [Test version](#test-version)
     - [Manually](#manually)
     - [Generic Helper](#generic-helper)
     - [LED Helper](#led-helper)
@@ -67,7 +70,7 @@ pip install -r requirements.txt
 
 ## Setup
 
-### Install package with pip
+### Install package
 
 Connect your MicroPython board to a network
 
@@ -79,13 +82,57 @@ station.connect('SSID', 'PASSWORD')
 station.isconnected()
 ```
 
-and install this lib on the MicroPython device like this
+#### General
+
+Install the latest package version of this lib on the MicroPython device
+
+```python
+import mip
+mip.install("github:brainelectronics/micropython-modules")
+```
+
+For MicroPython versions below 1.19.1 use the `upip` package instead of `mip`
 
 ```python
 import upip
 upip.install('micropython-brainelectronics-helpers')
-# its dependencies will be installed alongside
 ```
+
+#### Specific version
+
+Install a specific, fixed package version of this lib on the MicroPython device
+
+```python
+import mip
+# install a verions of a specific branch
+mip.install("github:brainelectronics/micropython-modules", version="feature/support-mip")
+# install a tag version
+mip.install("github:brainelectronics/micropython-modules", version="1.7.0")
+```
+
+#### Test version
+
+Install a specific release candidate version uploaded to
+[Test Python Package Index](https://test.pypi.org/) on every PR on the
+MicroPython device. If no specific version is set, the latest stable version
+will be used.
+
+```python
+import mip
+mip.install("github:brainelectronics/micropython-modules", version="1.7.0-rc5.dev22")
+```
+
+For MicroPython versions below 1.19.1 use the `upip` package instead of `mip`
+
+```python
+import upip
+# overwrite index_urls to only take artifacts from test.pypi.org
+upip.index_urls = ['https://test.pypi.org/pypi']
+upip.install('micropython-brainelectronics-helpers')
+```
+
+See also [brainelectronics Test PyPi Server in Docker][ref-brainelectronics-test-pypiserver]
+for a test PyPi server running on Docker.
 
 ### Manually
 
@@ -109,11 +156,6 @@ cp be_helpers/* /pyboard/lib/be_helpers
 
 Install required dependencies (requires network connection, see may use the
 [`WifiHelper`][ref-wifi-helper])
-
-```python
-import upip
-upip.install('micropython-ulogging')
-```
 
 ### Generic Helper
 
@@ -184,6 +226,11 @@ This example demonstrates how to interact with the onboard LED on the BE32-01
 ##### Basics
 
 The onboard LED is availabe on Pin 4 on the BE32-01 board in inverted mode.
+For the Raspberry Pi Pico (W) initialise the LED like this:
+```python
+from be_helpers.led_helper import Led
+led = Led(led_pin="LED", inverted=False)
+```
 
 ```python
 from be_helpers.led_helper import Led
@@ -340,7 +387,15 @@ pixel.color = 'DarlingColor'
 This requires [brainelectronics MicroPython Modbus][ref-be-upy-modbus]. Forked
 and extended from [SFERALABS Exo Sense Py][ref-sferalabs-exo-sense].
 
-Connect the board to a network and install the package like this
+Connect the board to a network and install the package like this for
+MicroPython 1.20.0 or never
+
+```python
+import mip
+mip.install("github:brainelectronics/micropython-modbus")
+```
+
+For MicroPython versions below 1.19.1 use the `upip` package instead of `mip`
 
 ```python
 import upip
@@ -469,6 +524,7 @@ print('Quality of strongest network {}: {}%'.format(strongest_net, quality))
 
 <!-- Links -->
 [ref-remote-upy-shell]: https://github.com/dhylands/rshell
+[ref-brainelectronics-test-pypiserver]: https://github.com/brainelectronics/test-pypiserver
 [ref-wifi-helper]: wifi_helper.py
 [ref-be-upy-modbus]: https://github.com/brainelectronics/micropython-modbus
 [ref-sferalabs-exo-sense]: https://github.com/sfera-labs/exo-sense-py-modbus
